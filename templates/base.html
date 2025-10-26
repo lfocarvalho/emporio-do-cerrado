@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link as="style"
+        href="https://fonts.googleapis.com/css2?display=swap&family=Work+Sans%3Awght%40400%3B500%3B600%3B700"
+        onload="this.rel='stylesheet'" rel="stylesheet" />
+    <title>{% block titulo %}Empório do Cerrado{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#4a7c59', // Verde Sálvia
+                        'background-light': '#f5f5f5', // Cinza muito claro
+                        'background-dark': '#282828',  // Carvão
+                        'text-dark': '#333333', // Texto principal
+                        'accent': '#D4A373', // Ocre (para detalhes)
+                    },
+                    fontFamily: {
+                        display: ['Work Sans'],
+                    },
+                },
+            },
+        }
+    </script>
+    
+    {% block extra_head %}{% endblock %}
+    
+</head>
+
+<body class="bg-background-light text-text-dark">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-10 py-4 bg-background-dark text-white">
+                <div class="flex items-center gap-8">
+                    <a href="{% url 'home' %}" class="flex items-center gap-3">
+                        <div class="w-8 h-8">
+                            <img src="{% static 'imagens/logo_cerrado_white.png' %}" alt="Logo Empório do Cerrado">
+                        </div>
+                        <h2 class="text-xl font-bold">Empório do Cerrado</h2>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-8 text-sm">
+                        <a class="font-medium text-white/80 hover:text-white" href="{% url 'home' %}">Início</a>
+                        <a class="font-medium text-white/80 hover:text-white" href="{% url 'produtos:listar-produtos' %}">Categorias</a>
+                        
+                        {% if user.is_staff %}
+                        <a href="{% url 'produtos:gerenciar-estoque' %}" class="font-bold text-primary hover:brightness-110">Gerenciar Loja</a>
+                        <a href="{% url 'core:gerenciar-carrossel' %}" class="font-bold text-primary hover:brightness-110">Gerir Carrossel</a>
+                        {% endif %}
+                    </nav>
+                </div>
+                <div class="flex items-center justify-end gap-2 text-white/80">
+                     <div class="hidden md:flex items-center">
+                        <a href="#" class="p-2 rounded-full hover:bg-white/10">
+                            <span class="material-symbols-outlined">favorite</span>
+                        </a>
+                        <a href="{% url 'pedido:ver_carrinho' %}" class="p-2 rounded-full hover:bg-white/10">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                        </a>
+                         {% if user.is_authenticated %}
+                            <a href="{% url 'perfil' %}" class="p-2 rounded-full hover:bg-white/10 flex items-center gap-2">
+                                <span class="material-symbols-outlined">person</span>
+                                <span class="text-sm font-bold">{{ user.username }}</span>
+                            </a>
+                            <a href="{% url 'logout' %}" class="p-2 rounded-full hover:bg-white/10">
+                                <span class="material-symbols-outlined">logout</span>
+                            </a>
+                         {% else %}
+                            <a href="{% url 'login' %}" class="text-sm font-medium hover:text-white px-3">Login</a>
+                         {% endif %}
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1">
+                {% block conteudo %}
+                {% endblock %}
+            </main>
+
+            <footer class="bg-background-dark text-white border-t border-white/10">
+                <div class="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col items-center gap-6">
+                        <div class="flex flex-wrap items-center justify-center gap-6">
+                            <a class="text-sm text-white/80 hover:text-white" href="#">Sobre nós</a>
+                            <a class="text-sm text-white/80 hover:text-white" href="#">Contato</a>
+                        </div>
+                        <p class="text-sm text-white/60">© 2024 Empório do Cerrado. Todos os direitos reservados.</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

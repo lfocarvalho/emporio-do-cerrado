@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}Login - FreshMart{% endblock %}
+
+{% block conteudo %}
+<div class="w-full md:w-1/2 bg-white p-8 sm:p-14 flex flex-col justify-center mx-auto">
+    <div class="w-full max-w-md mx-auto">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Login</h2>
+
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="usuario" class="block text-gray-700 text-sm font-semibold mb-2">Usuário</label>
+                <input type="text" id="usuario" name="usuario"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-200"
+                    placeholder="Seu usuário">
+            </div>
+
+            <div class="mb-4">
+                <label for="senha" class="block text-gray-700 text-sm font-semibold mb-2">Senha</label>
+                <input type="password" id="senha" name="senha"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-200"
+                    placeholder="••••••••">
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="w-full bg-primary text-black font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition duration-300">
+                    Entrar
+                </button>
+            </div>
+        </form>
+        
+        <p class="text-center text-gray-600 mt-8">
+            Não tem uma conta? <a href="{% url 'cadastro' %}" class="text-primary font-semibold hover:underline">Cadastre-se agora</a>
+        </p>
+
+        {% if mensagem %}
+        <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Erro:</strong>
+            <span class="block sm:inline">{{ mensagem }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

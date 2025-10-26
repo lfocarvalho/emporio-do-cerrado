@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block titulo %}Nossos Produtos{% endblock %}
+
+{% block conteudo %}
+<main class="px-4 md:px-10 lg:px-20 xl:px-40 flex-1 py-8">
+    <div class="layout-content-container flex flex-col max-w-5xl mx-auto">
+        <div class="mb-8">
+            <form method="get" class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">search</span>
+                <input
+                    name="busca"
+                    class="form-input w-full pl-12 pr-12 py-3 rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-primary focus:border-primary text-gray-900 dark:text-white"
+                    placeholder="Pesquisar por produtos..." value="{{ request.GET.busca }}">
+            </form>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ lista_produtos|length }} resultados encontrados</h3>
+        </div>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {% for produto in lista_produtos %}
+            <div class="flex flex-col group">
+                <div class="relative">
+                    <a href="{% url 'produtos:detalhe-produto' produto.pk %}"> {% if produto.imagem %}
+                        <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg mb-3 transition-all duration-300 group-hover:scale-105"
+                            style='background-image: url("{{ produto.imagem.url }}");'>
+                        </div>
+                        {% else %}
+                        <div class="w-full bg-gray-200 flex items-center justify-center aspect-square rounded-lg mb-3">
+                            <span class="text-gray-500">Sem foto</span>
+                        </div>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'pedido:adicionar_ao_carrinho' produto.id %}"
+                        class="absolute bottom-5 right-2 p-1.5 rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm hover:bg-primary dark:hover:bg-primary hover:text-white">
+                        <span class="material-symbols-outlined text-gray-700 dark:text-gray-300 text-xl">add_shopping_cart</span>
+                    </a>
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 dark:text-gray-100">{{ produto.nome }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">R$ {{ produto.preco }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <p>Nenhum produto encontrado.</p>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

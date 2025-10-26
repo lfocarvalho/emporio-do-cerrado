@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}Meu Perfil{% endblock %}
+
+{% block conteudo %}
+<main class="flex flex-1 justify-center py-10 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-4xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 pb-8">
+            <h1 class="text-3xl font-bold text-black dark:text-white">Seu Perfil</h1>
+        </div>
+        <div class="flex flex-col gap-8 @container">
+            <div
+                class="flex w-full flex-col gap-6 rounded-xl bg-white/50 dark:bg-black/20 p-6 shadow-sm @[520px]:flex-row @[520px]:items-center @[520px]:justify-between">
+                <div class="flex items-center gap-6">
+                    <div class="h-24 w-24 min-w-24 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span class="text-4xl font-bold text-black dark:text-white">{{ user.username|first|upper }}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <p class="text-2xl font-bold text-black dark:text-white">{{ user.first_name }} {{ user.last_name }}</p>
+                        <p class="text-lg text-black/80 dark:text-white/80">@{{ user.username }}</p>
+                        <p class="text-sm text-black/60 dark:text-white/60">Membro desde {{ user.date_joined|date:"Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex border-b border-primary/20 dark:border-primary/30">
+                <a class="border-b-2 border-primary px-4 py-3 text-sm font-bold text-primary" href="{% url 'perfil' %}">Perfil</a>
+                <a class="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                    href="{% url 'pedido:historico_pedidos' %}"> Pedidos </a>
+            </div>
+            <div class="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2">
+                <div class="flex flex-col gap-6">
+                    <h3 class="text-lg font-bold text-black dark:text-white">Informações Pessoais</h3>
+                    <div class="space-y-4">
+                        <label class="flex flex-col">
+                            <p class="pb-2 text-sm font-medium text-black dark:text-white">Nome Completo</p>
+                            <input
+                                class="form-input rounded border border-primary/20 bg-white/50 dark:border-primary/30 dark:bg-black/20 p-3 text-sm"
+                                value="{{ user.get_full_name }}" disabled />
+                        </label>
+                        <label class="flex flex-col">
+                            <p class="pb-2 text-sm font-medium text-black dark:text-white">Email</p>
+                            <input
+                                class="form-input rounded border border-primary/20 bg-white/50 dark:border-primary/30 dark:bg-black/20 p-3 text-sm"
+                                value="{{ user.email }}" disabled />
+                        </label>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <h3 class="text-lg font-bold text-black dark:text-white">Informações da Conta</h3>
+                    <div class="space-y-4">
+                        <label class="flex flex-col">
+                            <p class="pb-2 text-sm font-medium text-black dark:text-white">Nome de Usuário</p>
+                            <input
+                                class="form-input rounded border border-primary/20 bg-white/50 dark:border-primary/30 dark:bg-black/20 p-3 text-sm"
+                                value="{{ user.username }}" disabled />
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

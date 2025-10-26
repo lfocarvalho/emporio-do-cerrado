@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titulo %}{{ produto.nome }}{% endblock %}
+
+{% block conteudo %}
+<main class="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+                <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm overflow-hidden aspect-square">
+                    {% if produto.imagem %}
+                    <div class="w-full h-full bg-center bg-no-repeat bg-contain"
+                        style='background-image: url("{{ produto.imagem.url }}");'>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="space-y-8">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white tracking-tight mt-2">{{ produto.nome }}</h1>
+                    {% if produto.categoria %}
+                    <p class="text-lg text-gray-500 dark:text-gray-400 mt-1">{{ produto.categoria.nome }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-3xl font-bold text-gray-900 dark:text-white">R$ {{ produto.preco }}</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Descrição</h3>
+                    <p class="text-base text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
+                        {{ produto.descricao|default:"Sem descrição." }}
+                    </p>
+                </div>
+                <div class="flex items-center gap-4 pt-4">
+                    <a href="{% url 'pedido:adicionar_ao_carrinho' produto.id %}"
+                        class="flex-1 flex items-center justify-center rounded-lg px-8 py-3 bg-primary text-black text-base font-bold hover:bg-primary/90">
+                        Adicionar ao Carrinho
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

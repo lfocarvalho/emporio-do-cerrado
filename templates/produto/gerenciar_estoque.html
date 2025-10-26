@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block titulo %}Gerenciar Estoque{% endblock %}
+
+{% block conteudo %}
+<main class="flex-1 justify-center py-10 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-black dark:text-white">Gerenciamento de Estoque</h1>
+            <a href="{% url 'produtos:criar-produto' %}" class="rounded-lg bg-primary py-2 px-4 text-center font-bold text-black transition-transform hover:scale-[1.02]">
+                + Adicionar Novo Produto
+            </a>
+        </div>
+
+        <div class="bg-white dark:bg-gray-900/50 rounded-xl shadow-sm p-4">
+            <table class="w-full text-left">
+                <thead class="border-b dark:border-gray-700">
+                    <tr>
+                        <th class="p-4">Produto</th>
+                        <th class="p-4">Preço</th>
+                        <th class="p-4">Estoque</th>
+                        <th class="p-4 text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produto in produtos %}
+                    <tr class="border-b dark:border-gray-800">
+                        <td class="p-4 flex items-center gap-4">
+                            {% if produto.imagem %}
+                            <img src="{{ produto.imagem.url }}" class="h-12 w-12 rounded-lg object-cover">
+                            {% endif %}
+                            <span>{{ produto.nome }}</span>
+                        </td>
+                        <td class="p-4">R$ {{ produto.preco|floatformat:2 }}</td>
+                        <td class="p-4">{{ produto.estoque }}</td>
+                        <td class="p-4 text-right">
+                            <a href="{% url 'produtos:editar-produto' produto.pk %}" class="text-blue-500 hover:underline mr-4">Editar</a>
+                            <a href="{% url 'produtos:excluir-produto' produto.pk %}" class="text-red-500 hover:underline">Excluir</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-4 text-center">Nenhum produto cadastrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Editar {{ object.nome }}{% endblock %}
+
+{% block conteudo %}
+<main class="flex-1 justify-center py-10 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-2xl mx-auto">
+        <div class="bg-white dark:bg-gray-900/50 rounded-xl shadow-sm p-8">
+            <h1 class="text-2xl font-bold text-black dark:text-white mb-6">Editar Produto: {{ object.nome }}</h1>
+            
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-sm text-red-500 mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="flex justify-end gap-4 pt-4">
+                    <a href="{% url 'produtos:gerenciar-estoque' %}" class="rounded-lg bg-gray-200 dark:bg-gray-700 py-2 px-4 text-center font-bold text-black dark:text-white transition-colors hover:bg-gray-300">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="rounded-lg bg-primary py-2 px-4 text-center font-bold text-black transition-transform hover:scale-[1.02]">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}

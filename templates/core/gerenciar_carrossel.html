@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Gerir Carrossel{% endblock %}
+{% block conteudo %}
+<main class="flex-1 justify-center py-10 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">Gerir Carrossel</h1>
+            <a href="{% url 'core:criar-carrossel' %}" class="rounded-lg bg-primary py-2 px-4 text-center font-bold text-white">
+                + Adicionar Slide
+            </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for item in itens_carrossel %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <img src="{{ item.imagem.url }}" class="w-full h-40 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold">{{ item.titulo }}</h3>
+                    <p class="text-sm text-gray-600">Ordem: {{ item.ordem }} | {% if item.ativo %}Ativo{% else %}Inativo{% endif %}</p>
+                    <div class="mt-4 flex justify-end gap-2">
+                        <a href="{% url 'core:editar-carrossel' item.pk %}" class="text-blue-500 hover:underline">Editar</a>
+                        <a href="{% url 'core:deletar-carrossel' item.pk %}" class="text-red-500 hover:underline">Excluir</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>Nenhum item no carrossel. Clique em "Adicionar Slide" para começar.</p>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}Confirmar Exclusão{% endblock %}
+{% block conteudo %}
+<main class="flex-1 justify-center py-10 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-lg mx-auto">
+        <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+            <h1 class="text-2xl font-bold mb-4">Confirmar Exclusão</h1>
+            <p class="mb-6">
+                Tem a certeza que quer apagar o slide <strong class="text-red-500">"{{ object.titulo }}"</strong>?
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex justify-center gap-4">
+                    <a href="{% url 'core:gerenciar-carrossel' %}" class="rounded-lg bg-gray-200 py-2 px-6 text-center font-bold">Cancelar</a>
+                    <button type="submit" class="rounded-lg bg-red-600 py-2 px-6 text-center font-bold text-white">Sim, apagar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}
