@@ -32,6 +32,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('produtos/', include('produto.urls')),
     path('pedidos/', include('pedido.urls')),
+    path('favoritos/', include('favoritos.urls')),
     path('', include('core.urls')),
     path('autenticacao-api/', LoginAPI.as_view())
 ]

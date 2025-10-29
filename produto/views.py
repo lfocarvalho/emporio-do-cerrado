@@ -10,40 +10,41 @@ from rest_framework.generics import ListAPIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import permissions
 
-# Importe o modelo Carrossel do app core
 from core.models import Carrossel
+from favoritos.models import Favorito
 from .forms import FormularioProduto
 from .serializers import SerializadorProduto
 from .models import Produto, Categoria
 
 class HomeView(ListView):
-    """
-    View para a página inicial, mostrando categorias e produtos em destaque.
-    """
     model = Produto
     template_name = 'home.html'
     context_object_name = 'produtos'
 
     def get_queryset(self):
-        # Retorna os 8 produtos mais recentes QUE TÊM IMAGEM
         return Produto.objects.filter(imagem__isnull=False).exclude(imagem='').order_by('-id')[:8]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categorias'] = Categoria.objects.all()[:6]
-        # Busca os slides ativos QUE TÊM IMAGEM
         context['slides_carrossel'] = Carrossel.objects.filter(
             ativo=True, 
             imagem__isnull=False
         ).exclude(imagem='').order_by('ordem')
+        
+        if self.request.user.is_authenticated:
+            favoritos = Favorito.objects.filter(usuario=self.request.user)
+            context['favoritos_ids'] = list(favoritos.values_list('produto_id', flat=True))
+        else:
+            context['favoritos_ids'] = []
+            
         return context
-
-# --- O RESTO DO FICHEIRO CONTINUA IGUAL ---
 
 class ListarProdutos(ListView):
     model = Produto
     context_object_name = 'lista_produtos'
     template_name = 'produto/listar.html'
+    paginate_by = 20
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('nome')
@@ -58,10 +59,45 @@ class ListarProdutos(ListView):
             )
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categorias'] = Categoria.objects.all().order_by('nome')
+        context['categoria_selecionada'] = self.request.GET.get('categoria')
+        
+        if self.request.user.is_authenticated:
+            favoritos = Favorito.objects.filter(usuario=self.request.user)
+            context['favoritos_ids'] = list(favoritos.values_list('produto_id', flat=True))
+        else:
+            context['favoritos_ids'] = []
+            
+        return context
+
+# --- VIEW ATUALIZADA ---
 class DetalheProduto(DetailView):
     model = Produto
     template_name = 'produto/detalhe.html'
     context_object_name = 'produto'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        produto_atual = self.get_object()
+
+        # Lógica para buscar produtos relacionados
+        if produto_atual.categoria:
+            context['produtos_relacionados'] = Produto.objects.filter(
+                categoria=produto_atual.categoria
+            ).exclude(pk=produto_atual.pk)[:4] # Pega até 4 produtos da mesma categoria, excluindo o atual
+        
+        # Mantém a lógica de favoritos
+        if self.request.user.is_authenticated:
+            favoritos = Favorito.objects.filter(usuario=self.request.user)
+            context['favoritos_ids'] = list(favoritos.values_list('produto_id', flat=True))
+        else:
+            context['favoritos_ids'] = []
+            
+        return context
+
+# --- O RESTO DO FICHEIRO CONTINUA IGUAL ---
 
 class GerenciarEstoqueView(UserPassesTestMixin, ListView):
     model = Produto

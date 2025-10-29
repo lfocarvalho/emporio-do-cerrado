@@ -2,11 +2,11 @@
 {% block titulo %}{{ produto.nome }}{% endblock %}
 
 {% block conteudo %}
-<main class="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
+<main class="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
     <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
-                <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm overflow-hidden aspect-square">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden aspect-square">
                     {% if produto.imagem %}
                     <div class="w-full h-full bg-center bg-no-repeat bg-contain"
                         style='background-image: url("{{ produto.imagem.url }}");'>
@@ -14,30 +14,86 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="space-y-8">
+            <div class="flex flex-col justify-center space-y-8">
                 <div>
-                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white tracking-tight mt-2">{{ produto.nome }}</h1>
+                    <h1 class="text-4xl font-bold text-gray-900 tracking-tight mt-2">{{ produto.nome }}</h1>
                     {% if produto.categoria %}
-                    <p class="text-lg text-gray-500 dark:text-gray-400 mt-1">{{ produto.categoria.nome }}</p>
+                    <p class="text-lg text-gray-500 mt-1">{{ produto.categoria.nome }}</p>
                     {% endif %}
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-3xl font-bold text-gray-900 dark:text-white">R$ {{ produto.preco }}</span>
+                    <span class="text-3xl font-bold text-gray-900">R$ {{ produto.preco }}</span>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Descrição</h3>
-                    <p class="text-base text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
+                    <h3 class="text-lg font-bold text-gray-900">Descrição</h3>
+                    <p class="text-base text-gray-600 mt-2 leading-relaxed">
                         {{ produto.descricao|default:"Sem descrição." }}
                     </p>
                 </div>
-                <div class="flex items-center gap-4 pt-4">
-                    <a href="{% url 'pedido:adicionar_ao_carrinho' produto.id %}"
-                        class="flex-1 flex items-center justify-center rounded-lg px-8 py-3 bg-primary text-black text-base font-bold hover:bg-primary/90">
-                        Adicionar ao Carrinho
+                
+                <form action="{% url 'pedido:adicionar_ao_carrinho' produto.id %}" method="post" class="add-to-cart-form flex items-center gap-4 pt-4">
+                    {% csrf_token %}
+                    <div class="flex items-center rounded-lg border border-gray-300">
+                        <input type="number" name="quantidade" value="1" min="1" 
+                               class="w-16 text-center border-0 bg-transparent focus:ring-0">
+                    </div>
+                    <button type="submit"
+                        class="flex-1 flex items-center justify-center rounded-lg px-8 py-3 bg-primary text-black text-base font-bold hover:bg-primary/90 transition-all">
+                        <span>Adicionar ao Carrinho</span>
+                    </button>
+                    <a href="{% url 'favoritos:toggle-favorito' produto.id %}"
+                        class="toggle-favorito-btn p-3 rounded-full bg-white/50 backdrop-blur-sm hover:bg-white border">
+                        <span class="material-symbols-outlined text-2xl {% if produto.id in favoritos_ids %}text-red-500{% else %}text-gray-700{% endif %}"
+                              {% if produto.id in favoritos_ids %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                            favorite
+                        </span>
                     </a>
-                </div>
+                </form>
             </div>
         </div>
+
+        {% if produtos_relacionados %}
+        <div class="mt-20 pt-10 border-t">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Você também pode gostar...</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {% for p_rel in produtos_relacionados %}
+                <div class="flex flex-col group">
+                    <div class="relative">
+                        <a href="{% url 'produtos:detalhe-produto' p_rel.pk %}">
+                            {% if p_rel.imagem %}
+                            <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg mb-3 transition-all duration-300 group-hover:scale-105"
+                                style='background-image: url("{{ p_rel.imagem.url }}");'>
+                            </div>
+                            {% else %}
+                            <div class="w-full bg-gray-200 flex items-center justify-center aspect-square rounded-lg mb-3">
+                                <span class="text-gray-500">Sem foto</span>
+                            </div>
+                            {% endif %}
+                        </a>
+                        <form action="{% url 'pedido:adicionar_ao_carrinho' p_rel.id %}" method="post" class="add-to-cart-form absolute bottom-5 right-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantidade" value="1">
+                            <button type="submit" class="p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-primary hover:text-white transition-colors">
+                                <span class="material-symbols-outlined text-gray-700 text-xl">add_shopping_cart</span>
+                            </button>
+                        </form>
+                        <a href="{% url 'favoritos:toggle-favorito' p_rel.id %}"
+                            class="toggle-favorito-btn absolute top-2 right-2 p-1.5 rounded-full bg-white/50 backdrop-blur-sm hover:bg-white">
+                            <span class="material-symbols-outlined text-xl {% if p_rel.id in favoritos_ids %}text-red-500{% else %}text-gray-700{% endif %}"
+                                  {% if p_rel.id in favoritos_ids %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                                favorite
+                            </span>
+                        </a>
+                    </div>
+                    <div>
+                        <p class="text-base font-semibold text-gray-800">{{ p_rel.nome }}</p>
+                        <p class="text-sm text-gray-500">R$ {{ p_rel.preco }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </main>
 {% endblock %}

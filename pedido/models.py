@@ -1,4 +1,4 @@
-# pedido/models.py
+# mercado/pedido/models.py
 from django.db import models
 from django.contrib.auth.models import User
 from produto.models import Produto
@@ -19,8 +19,8 @@ class Pedido(models.Model):
 class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='itens')
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-    quantidade = models.PositiveIntegerField(default=1)
-    preco = models.DecimalField(max_digits=10, decimal_places=2) # Preço no momento da compra
+    quantidade = models.PositiveIntegerField(default=1) 
+    preco = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return f"{self.quantidade}x {self.produto.nome}"

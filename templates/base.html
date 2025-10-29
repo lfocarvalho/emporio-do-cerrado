@@ -10,18 +10,20 @@
         onload="this.rel='stylesheet'" rel="stylesheet" />
     <title>{% block titulo %}Empório do Cerrado{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        'primary': '#4a7c59', // Verde Sálvia
-                        'background-light': '#f5f5f5', // Cinza muito claro
-                        'background-dark': '#282828',  // Carvão
-                        'text-dark': '#333333', // Texto principal
-                        'accent': '#D4A373', // Ocre (para detalhes)
+                        'primary': '#4a7c59',
+                        'background-light': '#f5f5ff',
+                        'background-dark': '#282828',
+                        'text-dark': '#333333',
+                        'accent': '#D4A373',
                     },
                     fontFamily: {
                         display: ['Work Sans'],
@@ -31,11 +33,82 @@
         }
     </script>
     
+    <style>
+        /* Estilo do overlay de carregamento */
+        #loading-overlay {
+            position: fixed; inset: 0; background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center;
+            justify-content: center; opacity: 0; pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #loading-overlay.visible { opacity: 1; pointer-events: auto; }
+        .loader-container { position: relative; }
+        .cart-loader { font-size: 5rem; color: #4a7c59; animation: cart-shake 1.2s cubic-bezier(.36,.07,.19,.97) infinite; }
+        @keyframes cart-shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        .cart-loader::before, .cart-loader::after { content: ''; position: absolute; bottom: 10px; z-index: -1; border-radius: 50%; background-color: #D4A373; }
+        .cart-loader::before { left: -20px; width: 15px; height: 15px; animation: speed-bubble 1.2s ease-out infinite; }
+        .cart-loader::after { left: -40px; width: 10px; height: 10px; animation: speed-bubble 1.2s ease-out infinite 0.2s; }
+        @keyframes speed-bubble { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 0.7; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        /* Container das notificações "Toast" */
+        #toast-container {
+            position: fixed;
+            top: 1.25rem; /* 20px */
+            right: 1.25rem; /* 20px */
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem; /* 12px */
+        }
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem; /* 16px */
+            border-radius: 0.5rem; /* 8px */
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-left: 4px solid #4a7c59; /* Cor primária */
+            animation: slide-in 0.5s cubic-bezier(0.21, 1.02, 0.73, 1), fade-out 0.5s ease-out 2.5s forwards;
+        }
+        .toast-icon {
+            color: #4a7c59;
+        }
+        @keyframes slide-in {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+    
     {% block extra_head %}{% endblock %}
     
 </head>
 
 <body class="bg-background-light text-text-dark">
+
+    <div id="loading-overlay">
+        <div class="loader-container">
+            <span class="cart-loader material-symbols-outlined">shopping_cart</span>
+        </div>
+    </div>
+    
+    <div id="toast-container"></div>
+
     <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
         <div class="layout-container flex h-full grow flex-col">
             <header
@@ -59,11 +132,15 @@
                 </div>
                 <div class="flex items-center justify-end gap-2 text-white/80">
                      <div class="hidden md:flex items-center">
-                        <a href="#" class="p-2 rounded-full hover:bg-white/10">
+                        <a href="{% url 'favoritos:listar-favoritos' %}"  class="p-2 rounded-full hover:bg-white/10">
                             <span class="material-symbols-outlined">favorite</span>
                         </a>
-                        <a href="{% url 'pedido:ver_carrinho' %}" class="p-2 rounded-full hover:bg-white/10">
+                        <a href="{% url 'pedido:ver_carrinho' %}" class="relative p-2 rounded-full hover:bg-white/10">
                             <span class="material-symbols-outlined">shopping_cart</span>
+                            <span id="cart-item-count" 
+                                  class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full {% if total_itens_carrinho == 0 %}hidden{% endif %}">
+                                {{ total_itens_carrinho }}
+                            </span>
                         </a>
                          {% if user.is_authenticated %}
                             <a href="{% url 'perfil' %}" class="p-2 rounded-full hover:bg-white/10 flex items-center gap-2">
@@ -98,5 +175,114 @@
             </footer>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const overlay = document.getElementById('loading-overlay');
+        const showLoader = () => overlay && overlay.classList.add('visible');
+        const hideLoader = () => overlay && overlay.classList.remove('visible');
+        window.addEventListener('pageshow', hideLoader);
+        document.body.addEventListener('click', function(event) {
+            const link = event.target.closest('a');
+            const isAjaxButton = link && link.classList.contains('toggle-favorito-btn');
+            const isAnchorLink = link && link.href.includes('#');
+            if (link && link.href && link.target !== '_blank' && !isAjaxButton && !isAnchorLink && new URL(link.href).hostname === window.location.hostname) {
+                event.preventDefault(); showLoader();
+                setTimeout(() => { window.location.href = link.href; }, 500);
+            }
+        });
+        document.body.addEventListener('submit', function(event) {
+            const form = event.target.closest('form');
+            if (form && !form.classList.contains('add-to-cart-form')) {
+                setTimeout(() => showLoader(), 50);
+            }
+        });
+
+        // --- LÓGICA DAS NOTIFICAÇÕES "TOAST" ---
+        const toastContainer = document.getElementById('toast-container');
+        function createToast(message, iconName = 'check_circle') {
+            if (!toastContainer) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <span class="toast-icon material-symbols-outlined">${iconName}</span>
+                <span class="font-semibold">${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000); // Remove a notificação após 3 segundos
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        document.body.addEventListener('click', function(event) {
+            const button = event.target.closest('.toggle-favorito-btn');
+            if (!button) return;
+            event.preventDefault();
+            const url = button.href;
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    const icon = button.querySelector('.material-symbols-outlined');
+                    if (data.is_favorited) {
+                        icon.classList.add('text-red-500'); icon.classList.remove('text-gray-700');
+                        icon.style.fontVariationSettings = "'FILL' 1";
+                        createToast('Adicionado aos favoritos!', 'favorite');
+                    } else {
+                        icon.classList.remove('text-red-500'); icon.classList.add('text-gray-700');
+                        icon.style.fontVariationSettings = "'FILL' 0";
+                        createToast('Removido dos favoritos!', 'heart_broken');
+                    }
+                }
+            });
+        });
+
+        document.body.addEventListener('submit', function(event) {
+            const form = event.target.closest('.add-to-cart-form');
+            if (!form) return;
+            event.preventDefault();
+            const url = form.action;
+            const formData = new FormData(form);
+            fetch(url, {
+                method: 'POST', body: formData,
+                headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    const cartCountSpan = document.getElementById('cart-item-count');
+                    if (cartCountSpan) {
+                        cartCountSpan.textContent = data.total_itens;
+                        if (data.total_itens > 0) {
+                            cartCountSpan.classList.remove('hidden');
+                        } else {
+                            cartCountSpan.classList.add('hidden');
+                        }
+                    }
+                    createToast('Produto adicionado ao carrinho!', 'shopping_cart');
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>
