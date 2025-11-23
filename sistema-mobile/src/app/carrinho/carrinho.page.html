@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-title class="ion-text-center">Carrinho</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list *ngIf="itens.length; else vazio">
+    <ion-item *ngFor="let item of itens">
+      <ion-label>
+        <h2>{{ item.produto.nome }}</h2>
+        <p>Preço: R$ {{ item.preco }} | Quantidade: {{ item.quantidade }} | Total: R$ {{ item.total }}</p>
+      </ion-label>
+      <ion-button size="small" (click)="alterar(item, item.quantidade - 1)">-</ion-button>
+      <ion-button size="small" (click)="alterar(item, item.quantidade + 1)">+</ion-button>
+      <ion-button color="danger" size="small" (click)="remover(item)">Remover</ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #vazio>
+    <div class="empty-state">
+      <p>Seu carrinho está vazio.</p>
+    </div>
+  </ng-template>
+
+  <div class="subtotal" *ngIf="itens.length">
+    <p>Subtotal: R$ {{ subtotal }}</p>
+    <ion-button expand="block" (click)="finalizar()">Finalizar Pedido</ion-button>
+  </div>
+</ion-content>

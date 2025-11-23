@@ -3,7 +3,11 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // Base da API para desenvolvimento. Ao testar no dispositivo físico,
+  // substitua por seu IP na rede local, ex: 'http://192.168.0.10:8000'
+  // Emulador Android (Android Studio): use 10.0.2.2 para alcançar o host
+  apiBaseUrl: 'http://10.0.2.2:8000',
 };
 
 /*

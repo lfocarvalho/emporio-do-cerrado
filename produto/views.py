@@ -6,14 +6,14 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Q
 from django.http import Http404
 
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import permissions
 
 from core.models import Carrossel
 from favoritos.models import Favorito
 from .forms import FormularioProduto
-from .serializers import SerializadorProduto
+from .serializers import SerializadorProduto, SerializadorCategoria
 from .models import Produto, Categoria
 
 class HomeView(ListView):
@@ -136,8 +136,36 @@ class ExcluirProduto(UserPassesTestMixin, DeleteView):
 
 class APIListarProdutos(ListAPIView):
     serializer_class = SerializadorProduto
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    # Tornar listagem pública (somente leitura) para app mobile exibir produtos sem login
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        return Produto.objects.all()
+        qs = Produto.objects.all().order_by('nome')
+        categoria_query = self.request.GET.get('categoria')
+        if categoria_query:
+            # Mesmo comportamento da listagem web: filtra por nome da categoria
+            qs = qs.filter(categoria__nome=categoria_query)
+
+        busca = self.request.GET.get('busca')
+        if busca:
+            qs = qs.filter(Q(nome__icontains=busca) | Q(descricao__icontains=busca))
+        return qs
+
+
+class APICategorias(ListAPIView):
+    serializer_class = SerializadorCategoria
+    # Categorias públicas para navegação inicial no app
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Categoria.objects.all().order_by('nome')
+
+
+class APIDetalheProduto(RetrieveAPIView):
+    serializer_class = SerializadorProduto
+    # Detalhe também público (somente GET) para facilitar compartilhamento
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    queryset = Produto.objects.all()

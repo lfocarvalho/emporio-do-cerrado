@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding" fullscreen>
+  <div *ngIf="!autenticado" style="text-align:center;margin-top:40px">
+    <ion-icon name="personOutline" style="font-size:48px;color:#666"></ion-icon>
+    <p style="margin-top:12px;color:#555">Faça login para ver seus pedidos.</p>
+    <ion-button (click)="loginRedirect()" fill="outline">Login</ion-button>
+  </div>
+
+  <div *ngIf="autenticado">
+    <h2 style="font-weight:600;margin-bottom:12px;">Meus Pedidos</h2>
+    <ion-button size="small" color="danger" fill="outline" (click)="logout()">
+      <ion-icon name="logOutOutline" slot="start"></ion-icon>
+      Logout
+    </ion-button>
+    <ion-list *ngIf="pedidos.length">
+      <ion-item *ngFor="let p of pedidos">
+        <ion-icon name="receiptOutline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>#{{p.id}} - {{p.status}}</h3>
+          <p>{{p.data | date:'dd/MM/yyyy HH:mm'}} • Subtotal: R$ {{p.subtotal}}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+    <div *ngIf="!pedidos.length && !carregando" style="margin-top:16px;color:#666;font-size:13px">Nenhum pedido ainda.</div>
+    <div *ngIf="carregando" style="display:flex;align-items:center;gap:8px;margin-top:16px;color:#666">
+      <ion-spinner name="circles"></ion-spinner>
+      Carregando pedidos...
+    </div>
+    <div *ngIf="erro" style="color:#c00;margin-top:12px">{{erro}}</div>
+  </div>
+</ion-content>

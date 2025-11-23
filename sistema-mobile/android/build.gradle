@@ -17,6 +17,28 @@ buildscript {
 
 apply from: "variables.gradle"
 
+// Configuração de toolchain Java 21 via plugin Toolchains (aplicado dentro de subprojects)
+
+// Garante compatibilidade consistente em todos módulos Android/Capacitor
+subprojects { sub ->
+    sub.plugins.withType(com.android.build.gradle.AppPlugin) {
+        sub.android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_21
+                targetCompatibility JavaVersion.VERSION_21
+            }
+        }
+    }
+    sub.plugins.withType(com.android.build.gradle.LibraryPlugin) {
+        sub.android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_21
+                targetCompatibility JavaVersion.VERSION_21
+            }
+        }
+    }
+}
+
 allprojects {
     repositories {
         google()

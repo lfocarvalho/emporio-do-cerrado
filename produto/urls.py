@@ -7,7 +7,9 @@ from .views import (
     ExcluirProduto,
     APIListarProdutos,
     DetalheProduto,
-    GerenciarEstoqueView # Importa a nova view
+    GerenciarEstoqueView, # Importa a nova view
+    APICategorias,
+    APIDetalheProduto,
 )
 
 app_name = 'produtos'
@@ -25,4 +27,6 @@ urlpatterns = [
     
     # Rota da API
     path('api/', APIListarProdutos.as_view(), name='api-listar-produtos'),
+    path('api/categorias/', APICategorias.as_view(), name='api-categorias'),
+    path('api/<int:pk>/', APIDetalheProduto.as_view(), name='api-detalhe-produto'),
 ]

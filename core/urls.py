@@ -1,6 +1,6 @@
 # core/urls.py
 from django.urls import path
-from .views import GerenciarCarrosselView, CriarCarrosselView, EditarCarrosselView, DeletarCarrosselView
+from .views import GerenciarCarrosselView, CriarCarrosselView, EditarCarrosselView, DeletarCarrosselView, APIListarCarrossel
 
 app_name = 'core'
 
@@ -9,4 +9,6 @@ urlpatterns = [
     path('gerenciar/carrossel/novo/', CriarCarrosselView.as_view(), name='criar-carrossel'),
     path('gerenciar/carrossel/editar/<int:pk>/', EditarCarrosselView.as_view(), name='editar-carrossel'),
     path('gerenciar/carrossel/deletar/<int:pk>/', DeletarCarrosselView.as_view(), name='deletar-carrossel'),
+    # API DRF
+    path('api/carrossel/', APIListarCarrossel.as_view(), name='api-carrossel'),
 ]

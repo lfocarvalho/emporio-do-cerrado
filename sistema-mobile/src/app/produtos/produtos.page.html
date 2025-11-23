@@ -1,0 +1,38 @@
+<ion-page>
+  <ion-header>
+    <ion-toolbar color="dark">
+      <ion-title class="ion-text-center">Produtos</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <!-- Debug marker to confirmar renderização -->
+    <div style="font-size:11px;color:#666;text-align:center;margin-bottom:4px">[view: produtos]</div>
+  <ion-searchbar [(ngModel)]="busca" (ionChange)="carregarProdutos()" placeholder="Buscar produtos..."></ion-searchbar>
+
+  <ion-segment value="{{categoriaSelecionada || ''}}" (ionChange)="selecionarCategoria($event.detail.value ? +$event.detail.value : undefined)">
+    <ion-segment-button [value]="''">
+      <ion-label>Todas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button *ngFor="let c of categorias" [value]="c.id">
+      <ion-label>{{ c.nome }}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <div class="products-grid">
+    <ion-card *ngFor="let produto of produtos" (click)="abrirDetalhe(produto)" class="product-card">
+      <div class="product-image-container">
+        <img [src]="produto.imagem" *ngIf="produto.imagem" class="product-image" />
+      </div>
+      <ion-card-header>
+        <ion-card-title>{{ produto.nome }}</ion-card-title>
+        <ion-card-subtitle>R$ {{ produto.preco }}</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+  </div>
+
+  <div *ngIf="!produtos?.length" class="empty-state">
+    <p>Nenhum produto encontrado.</p>
+  </div>
+  </ion-content>
+</ion-page>

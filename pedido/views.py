@@ -7,6 +7,12 @@ from django.db.models import Sum, F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
+# DRF imports para API
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions, status
+from rest_framework.authentication import TokenAuthentication
+
 
 @login_required
 def adicionar_ao_carrinho(request, produto_id):
@@ -101,3 +107,122 @@ def finalizar_pedido(request):
 def historico_pedidos(request):
     pedidos = Pedido.objects.filter(usuario=request.user).exclude(status='carrinho').order_by('-data_criacao')
     return render(request, 'pedido/historico.html', {'pedidos': pedidos})
+
+
+# -------------------- API DRF --------------------
+
+def _get_or_create_carrinho(user):
+    pedido, _ = Pedido.objects.get_or_create(usuario=user, status='carrinho')
+    return pedido
+
+
+class APIGetCarrinho(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        pedido = Pedido.objects.filter(usuario=request.user, status='carrinho').first()
+        if not pedido:
+            return Response({'itens': [], 'subtotal': 0})
+        itens = [
+            {
+                'id': item.id,
+                'produto': {
+                    'id': item.produto.id,
+                    'nome': item.produto.nome,
+                    'preco': str(item.produto.preco),
+                    'imagem': item.produto.imagem.url if item.produto.imagem else None,
+                },
+                'quantidade': item.quantidade,
+                'preco': str(item.preco),
+                'total': str(item.preco * item.quantidade),
+            }
+            for item in pedido.itens.select_related('produto').all()
+        ]
+        subtotal = pedido.itens.aggregate(total=Sum(F('preco') * F('quantidade')))['total'] or 0
+        return Response({'itens': itens, 'subtotal': str(subtotal)})
+
+
+class APIAdicionarAoCarrinho(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        produto_id = request.data.get('produto_id')
+        quantidade = int(request.data.get('quantidade', 1))
+        if not produto_id:
+            return Response({'detail': 'produto_id é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
+        produto = get_object_or_404(Produto, id=produto_id)
+        pedido = _get_or_create_carrinho(request.user)
+        item, _ = ItemPedido.objects.get_or_create(
+            pedido=pedido,
+            produto=produto,
+            defaults={'preco': produto.preco, 'quantidade': 0}
+        )
+        item.quantidade += max(1, quantidade)
+        item.save()
+        return Response({'status': 'ok', 'item_id': item.id})
+
+
+class APIRemoverDoCarrinho(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        item_id = request.data.get('item_id')
+        if not item_id:
+            return Response({'detail': 'item_id é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
+        item = get_object_or_404(ItemPedido, id=item_id, pedido__usuario=request.user)
+        item.delete()
+        return Response({'status': 'ok'})
+
+
+class APIAlterarItemCarrinho(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        item_id = request.data.get('item_id')
+        quantidade = request.data.get('quantidade')
+        if item_id is None or quantidade is None:
+            return Response({'detail': 'item_id e quantidade são obrigatórios'}, status=status.HTTP_400_BAD_REQUEST)
+        item = get_object_or_404(ItemPedido, id=item_id, pedido__usuario=request.user)
+        quantidade = int(quantidade)
+        if quantidade <= 0:
+            item.delete()
+            return Response({'status': 'ok', 'deleted': True})
+        item.quantidade = quantidade
+        item.save()
+        return Response({'status': 'ok'})
+
+
+class APIFinalizarPedido(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        pedido = Pedido.objects.filter(usuario=request.user, status='carrinho').first()
+        if not pedido or not pedido.itens.exists():
+            return Response({'detail': 'Carrinho vazio'}, status=status.HTTP_400_BAD_REQUEST)
+        pedido.status = 'realizado'
+        pedido.save()
+        return Response({'status': 'ok', 'pedido_id': pedido.id})
+
+
+class APIHistoricoPedidos(APIView):
+    """Lista pedidos do usuário (exceto carrinho)."""
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        pedidos = Pedido.objects.filter(usuario=request.user).exclude(status='carrinho').order_by('-data_criacao')
+        data = [
+            {
+                'id': p.id,
+                'status': p.status,
+                'data_criacao': p.data_criacao.isoformat() if p.data_criacao else None,
+                'subtotal': p.itens.aggregate(total=Sum(F('preco') * F('quantidade')))['total'] or 0,
+            }
+            for p in pedidos
+        ]
+        return Response(data)
