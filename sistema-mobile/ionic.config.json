@@ -1,7 +1,0 @@
-{
-  "name": "sistema-mobile",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}

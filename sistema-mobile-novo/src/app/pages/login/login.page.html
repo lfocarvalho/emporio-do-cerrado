@@ -1,0 +1,48 @@
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <div class="logo-container">
+      <ion-icon name="storefront-outline" size="large"></ion-icon>
+      <h1>Empório do Cerrado</h1>
+    </div>
+
+    <ion-card>
+      <ion-card-content>
+        <form #loginForm="ngForm" (ngSubmit)="onLogin()">
+          <ion-item lines="full">
+            <ion-label position="floating">Usuário</ion-label>
+            <ion-input
+              type="text"
+              [(ngModel)]="username"
+              name="username"
+              required
+            ></ion-input>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-label position="floating">Senha</ion-label>
+            <ion-input
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              required
+            ></ion-input>
+          </ion-item>
+
+          <ion-button 
+            expand="block" 
+            type="submit" 
+            [disabled]="!loginForm.valid || isLoading"
+            class="ion-margin-top"
+          >
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Entrar</span>
+          </ion-button>
+        </form>
+
+        <ion-text color="danger" *ngIf="errorMessage">
+          <p class="ion-text-center">{{ errorMessage }}</p>
+        </ion-text>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

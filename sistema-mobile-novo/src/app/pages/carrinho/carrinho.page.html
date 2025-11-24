@@ -1,0 +1,72 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Carrinho</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Carrinho</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="!loading && itens.length > 0">
+    <ion-list>
+      <ion-item *ngFor="let item of itens">
+        <ion-thumbnail slot="start">
+          <img [src]="item.produto.foto || item.produto.imagem || 'assets/icon/favicon.png'" [alt]="item.produto.nome" />
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{ item.produto.nome }}</h2>
+          <p>{{ item.produto.preco | currency:'BRL' }}</p>
+          <div class="qtd-controls">
+            <ion-button size="small" fill="clear" (click)="decrementar(item)">
+              <ion-icon name="remove"></ion-icon>
+            </ion-button>
+            <ion-text class="qtd">{{ item.quantidade }}</ion-text>
+            <ion-button size="small" fill="clear" (click)="incrementar(item)">
+              <ion-icon name="add"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-label>
+        <div slot="end" class="end-actions">
+          <ion-note class="ion-margin-end">
+            {{ totalItem(item) | currency:'BRL' }}
+          </ion-note>
+          <ion-button fill="clear" color="danger" (click)="removerItem(item)">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-item>
+    </ion-list>
+
+    <ion-card>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>
+            <h2><strong>Total</strong></h2>
+          </ion-label>
+          <ion-note slot="end" color="success">
+            <h2><strong>{{ calcularTotal() | currency:'BRL' }}</strong></h2>
+          </ion-note>
+        </ion-item>
+        <ion-button expand="block" color="success" class="ion-margin-top" (click)="finalizarPedido()">
+          Finalizar Pedido
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-text color="medium" *ngIf="!loading && itens.length === 0">
+    <p class="ion-text-center ion-padding">Carrinho vazio</p>
+  </ion-text>
+</ion-content>

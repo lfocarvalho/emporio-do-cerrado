@@ -4,26 +4,26 @@
 
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
     <link as="style"
         href="https://fonts.googleapis.com/css2?display=swap&family=Work+Sans%3Awght%40400%3B500%3B600%3B700"
         onload="this.rel='stylesheet'" rel="stylesheet" />
     <title>{% block titulo %}Empório do Cerrado{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        'primary': '#4a7c59',
-                        'background-light': '#f5f5ff',
+                        'primary': '#4a7c59', 
+                        'background-light': '#f5f5f5', 
                         'background-dark': '#282828',
-                        'text-dark': '#333333',
-                        'accent': '#D4A373',
+                        'text-dark': '#333333', 
+                        'accent': '#D4A373', 
                     },
                     fontFamily: {
                         display: ['Work Sans'],
@@ -33,126 +33,97 @@
         }
     </script>
     
-    <style>
-        /* Estilo do overlay de carregamento */
-        #loading-overlay {
-            position: fixed; inset: 0; background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center;
-            justify-content: center; opacity: 0; pointer-events: none;
-            transition: opacity 0.5s ease-in-out;
-        }
-        #loading-overlay.visible { opacity: 1; pointer-events: auto; }
-        .loader-container { position: relative; }
-        .cart-loader { font-size: 5rem; color: #4a7c59; animation: cart-shake 1.2s cubic-bezier(.36,.07,.19,.97) infinite; }
-        @keyframes cart-shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
-        .cart-loader::before, .cart-loader::after { content: ''; position: absolute; bottom: 10px; z-index: -1; border-radius: 50%; background-color: #D4A373; }
-        .cart-loader::before { left: -20px; width: 15px; height: 15px; animation: speed-bubble 1.2s ease-out infinite; }
-        .cart-loader::after { left: -40px; width: 10px; height: 10px; animation: speed-bubble 1.2s ease-out infinite 0.2s; }
-        @keyframes speed-bubble { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 0.7; } 100% { transform: scale(1.5); opacity: 0; } }
-
-        /* Container das notificações "Toast" */
-        #toast-container {
-            position: fixed;
-            top: 1.25rem; /* 20px */
-            right: 1.25rem; /* 20px */
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem; /* 12px */
-        }
-        .toast {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem; /* 16px */
-            border-radius: 0.5rem; /* 8px */
-            background-color: white;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            border-left: 4px solid #4a7c59; /* Cor primária */
-            animation: slide-in 0.5s cubic-bezier(0.21, 1.02, 0.73, 1), fade-out 0.5s ease-out 2.5s forwards;
-        }
-        .toast-icon {
-            color: #4a7c59;
-        }
-        @keyframes slide-in {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes fade-out {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-        }
-    </style>
-    
     {% block extra_head %}{% endblock %}
     
 </head>
 
 <body class="bg-background-light text-text-dark">
-
-    <div id="loading-overlay">
-        <div class="loader-container">
-            <span class="cart-loader material-symbols-outlined">shopping_cart</span>
-        </div>
-    </div>
-    
-    <div id="toast-container"></div>
-
     <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
         <div class="layout-container flex h-full grow flex-col">
-            <header
-                class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-10 py-4 bg-background-dark text-white">
-                <div class="flex items-center gap-8">
-                    <a href="{% url 'home' %}" class="flex items-center gap-3">
-                        <div class="w-8 h-8">
-                            <img src="{% static 'imagens/logo_cerrado_white.png' %}" alt="Logo Empório do Cerrado">
+            
+            <header class="sticky top-0 z-50 bg-background-dark text-white border-b border-white/10 shadow-md">
+                <div class="flex items-center justify-between px-4 md:px-10 py-4">
+                    
+                    <div class="flex items-center gap-8">
+                        <a href="{% url 'home' %}" class="flex items-center gap-3">
+                            <div class="w-8 h-8">
+                                <img src="{% static 'imagens/logo_cerrado_white.png' %}" alt="Logo" class="object-contain w-full h-full">
+                            </div>
+                            <h2 class="text-xl font-bold whitespace-nowrap">Empório do Cerrado</h2>
+                        </a>
+
+                        <nav class="hidden md:flex items-center gap-8 text-sm">
+                            <a class="font-medium text-white/80 hover:text-white transition-colors" href="{% url 'home' %}">Início</a>
+                            <a class="font-medium text-white/80 hover:text-white transition-colors" href="{% url 'produtos:listar-produtos' %}">Categorias</a>
+                            
+                            {% if user.is_staff %}
+                            <a href="{% url 'produtos:gerenciar-estoque' %}" class="font-bold text-primary hover:brightness-110 transition-colors">Gerenciar Loja</a>
+                            <a href="{% url 'core:gerenciar-carrossel' %}" class="font-bold text-primary hover:brightness-110 transition-colors">Gerir Carrossel</a>
+                            {% endif %}
+                        </nav>
+                    </div>
+
+                    <div class="hidden md:flex items-center justify-end gap-2 text-white/80">
+                         <div class="flex items-center">
+                            <a href="#" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+                                <span class="material-symbols-outlined">favorite</span>
+                            </a>
+                            <a href="{% url 'pedido:ver_carrinho' %}" class="p-2 rounded-full hover:bg-white/10 transition-colors relative">
+                                <span class="material-symbols-outlined">shopping_cart</span>
+                            </a>
+                             {% if user.is_authenticated %}
+                                <a href="{% url 'perfil' %}" class="p-2 rounded-full hover:bg-white/10 flex items-center gap-2 transition-colors">
+                                    <span class="material-symbols-outlined">person</span>
+                                    <span class="text-sm font-bold">{{ user.username }}</span>
+                                </a>
+                                <a href="{% url 'logout' %}" class="p-2 rounded-full hover:bg-white/10 transition-colors" title="Sair">
+                                    <span class="material-symbols-outlined">logout</span>
+                                </a>
+                             {% else %}
+                                <a href="{% url 'login' %}" class="text-sm font-medium hover:text-white px-3 transition-colors">Login</a>
+                             {% endif %}
                         </div>
-                        <h2 class="text-xl font-bold">Empório do Cerrado</h2>
-                    </a>
-                    <nav class="hidden md:flex items-center gap-8 text-sm">
-                        <a class="font-medium text-white/80 hover:text-white" href="{% url 'home' %}">Início</a>
-                        <a class="font-medium text-white/80 hover:text-white" href="{% url 'produtos:listar-produtos' %}">Categorias</a>
+                    </div>
+
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-white hover:bg-white/10 rounded-lg">
+                        <span class="material-symbols-outlined text-3xl">menu</span>
+                    </button>
+                </div>
+
+                <div id="mobile-menu" class="hidden md:hidden bg-background-dark border-t border-white/10 px-4 pb-6">
+                    <nav class="flex flex-col gap-2 pt-4 text-base">
+                        <a class="block py-3 px-2 font-medium text-white/90 hover:bg-white/5 rounded-lg" href="{% url 'home' %}">Início</a>
+                        <a class="block py-3 px-2 font-medium text-white/90 hover:bg-white/5 rounded-lg" href="{% url 'produtos:listar-produtos' %}">Categorias</a>
                         
                         {% if user.is_staff %}
-                        <a href="{% url 'produtos:gerenciar-estoque' %}" class="font-bold text-primary hover:brightness-110">Gerenciar Loja</a>
-                        <a href="{% url 'core:gerenciar-carrossel' %}" class="font-bold text-primary hover:brightness-110">Gerir Carrossel</a>
+                        <div class="py-2 border-t border-white/10 mt-2">
+                            <p class="px-2 text-xs text-white/50 uppercase font-bold mb-1">Administração</p>
+                            <a href="{% url 'produtos:gerenciar-estoque' %}" class="block py-2 px-2 font-bold text-primary hover:bg-white/5 rounded-lg">Gerenciar Loja</a>
+                            <a href="{% url 'core:gerenciar-carrossel' %}" class="block py-2 px-2 font-bold text-primary hover:bg-white/5 rounded-lg">Gerir Carrossel</a>
+                        </div>
                         {% endif %}
                     </nav>
-                </div>
-                <div class="flex items-center justify-end gap-2 text-white/80">
-                     <div class="hidden md:flex items-center">
-                        <a href="{% url 'favoritos:listar-favoritos' %}"  class="p-2 rounded-full hover:bg-white/10">
-                            <span class="material-symbols-outlined">favorite</span>
-                        </a>
-                        <a href="{% url 'pedido:ver_carrinho' %}" class="relative p-2 rounded-full hover:bg-white/10">
+
+                    <div class="flex flex-col gap-3 mt-4 pt-4 border-t border-white/10">
+                        <a href="{% url 'pedido:ver_carrinho' %}" class="flex items-center gap-3 py-2 px-2 text-white/90 hover:bg-white/5 rounded-lg">
                             <span class="material-symbols-outlined">shopping_cart</span>
-                            <span id="cart-item-count" 
-                                  class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full {% if total_itens_carrinho == 0 %}hidden{% endif %}">
-                                {{ total_itens_carrinho }}
-                            </span>
+                            <span>Meu Carrinho</span>
                         </a>
-                         {% if user.is_authenticated %}
-                            <a href="{% url 'perfil' %}" class="p-2 rounded-full hover:bg-white/10 flex items-center gap-2">
+                        
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'perfil' %}" class="flex items-center gap-3 py-2 px-2 text-white/90 hover:bg-white/5 rounded-lg">
                                 <span class="material-symbols-outlined">person</span>
-                                <span class="text-sm font-bold">{{ user.username }}</span>
+                                <span>Meu Perfil ({{ user.username }})</span>
                             </a>
-                            <a href="{% url 'logout' %}" class="p-2 rounded-full hover:bg-white/10">
+                            <a href="{% url 'logout' %}" class="flex items-center gap-3 py-2 px-2 text-red-400 hover:bg-white/5 rounded-lg">
                                 <span class="material-symbols-outlined">logout</span>
+                                <span>Sair</span>
                             </a>
-                         {% else %}
-                            <a href="{% url 'login' %}" class="text-sm font-medium hover:text-white px-3">Login</a>
-                         {% endif %}
+                        {% else %}
+                            <a href="{% url 'login' %}" class="mt-2 w-full text-center bg-primary text-black font-bold py-3 rounded-lg hover:bg-primary/90">
+                                Fazer Login
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </header>
@@ -162,14 +133,14 @@
                 {% endblock %}
             </main>
 
-            <footer class="bg-background-dark text-white border-t border-white/10">
+            <footer class="bg-background-dark text-white border-t border-white/10 mt-auto">
                 <div class="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-col items-center gap-6">
                         <div class="flex flex-wrap items-center justify-center gap-6">
                             <a class="text-sm text-white/80 hover:text-white" href="#">Sobre nós</a>
                             <a class="text-sm text-white/80 hover:text-white" href="#">Contato</a>
                         </div>
-                        <p class="text-sm text-white/60">© 2024 Empório do Cerrado. Todos os direitos reservados.</p>
+                        <p class="text-sm text-white/60 text-center">© 2024 Empório do Cerrado. Todos os direitos reservados.</p>
                     </div>
                 </div>
             </footer>
@@ -177,112 +148,16 @@
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const overlay = document.getElementById('loading-overlay');
-        const showLoader = () => overlay && overlay.classList.add('visible');
-        const hideLoader = () => overlay && overlay.classList.remove('visible');
-        window.addEventListener('pageshow', hideLoader);
-        document.body.addEventListener('click', function(event) {
-            const link = event.target.closest('a');
-            const isAjaxButton = link && link.classList.contains('toggle-favorito-btn');
-            const isAnchorLink = link && link.href.includes('#');
-            if (link && link.href && link.target !== '_blank' && !isAjaxButton && !isAnchorLink && new URL(link.href).hostname === window.location.hostname) {
-                event.preventDefault(); showLoader();
-                setTimeout(() => { window.location.href = link.href; }, 500);
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+
+            if (btn && menu) {
+                btn.addEventListener('click', function() {
+                    menu.classList.toggle('hidden');
+                });
             }
         });
-        document.body.addEventListener('submit', function(event) {
-            const form = event.target.closest('form');
-            if (form && !form.classList.contains('add-to-cart-form')) {
-                setTimeout(() => showLoader(), 50);
-            }
-        });
-
-        // --- LÓGICA DAS NOTIFICAÇÕES "TOAST" ---
-        const toastContainer = document.getElementById('toast-container');
-        function createToast(message, iconName = 'check_circle') {
-            if (!toastContainer) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `
-                <span class="toast-icon material-symbols-outlined">${iconName}</span>
-                <span class="font-semibold">${message}</span>
-            `;
-            toastContainer.appendChild(toast);
-            setTimeout(() => {
-                toast.remove();
-            }, 3000); // Remove a notificação após 3 segundos
-        }
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
-
-        document.body.addEventListener('click', function(event) {
-            const button = event.target.closest('.toggle-favorito-btn');
-            if (!button) return;
-            event.preventDefault();
-            const url = button.href;
-            fetch(url, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'ok') {
-                    const icon = button.querySelector('.material-symbols-outlined');
-                    if (data.is_favorited) {
-                        icon.classList.add('text-red-500'); icon.classList.remove('text-gray-700');
-                        icon.style.fontVariationSettings = "'FILL' 1";
-                        createToast('Adicionado aos favoritos!', 'favorite');
-                    } else {
-                        icon.classList.remove('text-red-500'); icon.classList.add('text-gray-700');
-                        icon.style.fontVariationSettings = "'FILL' 0";
-                        createToast('Removido dos favoritos!', 'heart_broken');
-                    }
-                }
-            });
-        });
-
-        document.body.addEventListener('submit', function(event) {
-            const form = event.target.closest('.add-to-cart-form');
-            if (!form) return;
-            event.preventDefault();
-            const url = form.action;
-            const formData = new FormData(form);
-            fetch(url, {
-                method: 'POST', body: formData,
-                headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'ok') {
-                    const cartCountSpan = document.getElementById('cart-item-count');
-                    if (cartCountSpan) {
-                        cartCountSpan.textContent = data.total_itens;
-                        if (data.total_itens > 0) {
-                            cartCountSpan.classList.remove('hidden');
-                        } else {
-                            cartCountSpan.classList.add('hidden');
-                        }
-                    }
-                    createToast('Produto adicionado ao carrinho!', 'shopping_cart');
-                }
-            });
-        });
-    });
     </script>
 </body>
 </html>

@@ -1,0 +1,15 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+ion-thumbnail {
+  --size: 80px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}

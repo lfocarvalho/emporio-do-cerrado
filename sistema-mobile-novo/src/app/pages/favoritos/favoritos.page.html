@@ -1,0 +1,47 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Favoritos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Favoritos</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="!loading && favoritos.length > 0">
+    <ion-item-sliding *ngFor="let favorito of favoritos">
+      <ion-item button (click)="navigateToProduto(favorito.id)">
+        <ion-thumbnail slot="start">
+          <img [src]="favorito?.imagem || favorito?.foto || 'assets/icon/favicon.png'" [alt]="favorito?.nome || 'Produto'" />
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{ favorito?.nome }}</h2>
+          <p>{{ (favorito?.preco || 0) | currency:'BRL' }}</p>
+        </ion-label>
+        <ion-button slot="end" fill="clear" color="danger" (click)="$event.stopPropagation(); removerFavorito(favorito.id)">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="removerFavorito(favorito.id)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-text color="medium" *ngIf="!loading && favoritos.length === 0">
+    <p class="ion-text-center ion-padding">Nenhum favorito adicionado</p>
+  </ion-text>
+</ion-content>

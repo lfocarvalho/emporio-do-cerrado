@@ -1,0 +1,39 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/produtos"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Produto</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFavorito()">
+        <ion-icon [name]="isFavorito ? 'heart' : 'heart-outline'" [color]="isFavorito ? 'danger' : ''"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <div *ngIf="!loading && produto">
+  <img [src]="produto.foto || produto.imagem || 'assets/icon/favicon.png'" [alt]="produto.nome" class="produto-imagem" />
+
+    <div class="produto-info">
+      <h1>{{ produto.nome }}</h1>
+      <h2 class="preco">{{ produto.preco | currency:'BRL' }}</h2>
+      <p class="descricao">{{ produto.descricao }}</p>
+
+      <ion-button expand="block" (click)="adicionarAoCarrinho()" [disabled]="adicionando">
+        <ion-icon slot="start" name="cart"></ion-icon>
+        <span *ngIf="!adicionando">Adicionar ao Carrinho</span>
+        <ion-spinner *ngIf="adicionando" name="crescent"></ion-spinner>
+      </ion-button>
+    </div>
+  </div>
+
+  <ion-text color="medium" *ngIf="!loading && !produto">
+    <p class="ion-text-center ion-padding">Produto não encontrado</p>
+  </ion-text>
+</ion-content>
