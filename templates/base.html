@@ -65,11 +65,14 @@
 
                     <div class="hidden md:flex items-center justify-end gap-2 text-white/80">
                          <div class="flex items-center">
-                            <a href="#" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+                            <a href="{% url 'favoritos:listar-favoritos' %}" class="p-2 rounded-full hover:bg-white/10 transition-colors" title="Favoritos" aria-label="Favoritos">
                                 <span class="material-symbols-outlined">favorite</span>
                             </a>
-                            <a href="{% url 'pedido:ver_carrinho' %}" class="p-2 rounded-full hover:bg-white/10 transition-colors relative">
+                            <a href="{% url 'pedido:ver_carrinho' %}" class="p-2 rounded-full hover:bg-white/10 transition-colors relative" aria-label="Carrinho" title="Carrinho">
                                 <span class="material-symbols-outlined">shopping_cart</span>
+                                {% if total_itens_carrinho %}
+                                <span id="cart-badge" class="absolute -top-1 -right-1 text-[10px] bg-primary text-black rounded-full px-1 min-w-[20px] text-center font-bold">{{ total_itens_carrinho }}</span>
+                                {% endif %}
                             </a>
                              {% if user.is_authenticated %}
                                 <a href="{% url 'perfil' %}" class="p-2 rounded-full hover:bg-white/10 flex items-center gap-2 transition-colors">
@@ -147,16 +150,37 @@
         </div>
     </div>
 
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-3"></div>
+    <style>
+        .toast{animation:fadeIn .25s ease forwards}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+    </style>
     <script>
+        function showToast(message, type){
+            const c = document.getElementById('toast-container');
+            if(!c) return;
+            const div = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500 text-white',
+                info: 'bg-blue-500 text-white',
+                warning: 'bg-yellow-500 text-black',
+                error: 'bg-red-600 text-white'
+            };
+            div.className = 'toast shadow-lg rounded-md px-4 py-3 text-sm font-medium flex items-center gap-2 ' + (colors[type]||'bg-neutral-800 text-white');
+            div.innerHTML = '<span class="material-symbols-outlined text-base">'+(type==='success'?'check_circle': type==='info'?'info': type==='warning'?'warning':'notification_important')+'</span><span>'+message+'</span>';
+            c.appendChild(div);
+            setTimeout(()=>{div.style.opacity='0';div.style.transition='opacity .4s';setTimeout(()=>div.remove(),400)},4000);
+        }
         document.addEventListener('DOMContentLoaded', function() {
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-menu');
-
-            if (btn && menu) {
-                btn.addEventListener('click', function() {
-                    menu.classList.toggle('hidden');
-                });
-            }
+            if (btn && menu) { btn.addEventListener('click', () => menu.classList.toggle('hidden')); }
+            
+            // {% if messages %}
+            //     {% for m in messages %}
+                    showToast('{{ m|escapejs }}', '{{ m.tags|default:"info" }}');
+            //     {% endfor %}
+            // {% endif %}
         });
     </script>
 </body>

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block titulo %}Meus Favoritos{% endblock %}
+
+{% block conteudo %}
+<main class="px-4 md:px-10 lg:px-20 xl:px-40 flex-1 py-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-lg font-semibold">{{ lista_produtos|length }} favoritos</h3>
+      <div class="w-full max-w-xs">
+        <input id="favoritos-search" type="text" placeholder="Buscar favorito..." class="form-input w-full px-3 py-2 rounded-lg border-gray-200 bg-white focus:ring-primary focus:border-primary" />
+      </div>
+    </div>
+
+    <div id="favoritos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {% for produto in lista_produtos %}
+      <div class="favorito-card flex flex-col group" data-nome="{{ produto.nome|lower }}" data-id="{{ produto.id }}">
+        <div class="relative">
+          <a href="{% url 'produtos:detalhe-produto' produto.pk %}">
+            {% if produto.imagem %}
+            <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg mb-3 transition-all duration-300 group-hover:scale-105" style='background-image: url("{{ produto.imagem.url }}");'>
+            </div>
+            {% else %}
+            <div class="w-full bg-gray-200 flex items-center justify-center aspect-square rounded-lg mb-3">
+              <span class="text-gray-500">Sem foto</span>
+            </div>
+            {% endif %}
+          </a>
+          <form action="{% url 'favoritos:toggle-favorito' produto.id %}" method="post" class="inline toggle-favorito-form absolute top-2 right-2">
+            {% csrf_token %}
+            <button type="submit" class="toggle-favorito-btn p-1.5 rounded-full bg-white/60 backdrop-blur-sm hover:bg-white" aria-label="Remover favorito">
+              <span class="material-symbols-outlined text-xl fav-icon text-red-500" style="font-variation-settings: 'FILL' 1;">favorite</span>
+            </button>
+          </form>
+        </div>
+        <div>
+          <p class="text-base font-semibold text-gray-800">{{ produto.nome }}</p>
+          <p class="text-sm text-gray-500">R$ {{ produto.preco }}</p>
+        </div>
+      </div>
+      {% empty %}
+      <p class="col-span-full text-gray-500">Nenhum favorito adicionado.</p>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('favoritos-search');
+    const cards = Array.from(document.querySelectorAll('.favorito-card'));
+
+    function filtrar() {
+      const termo = searchInput.value.trim().toLowerCase();
+      cards.forEach(card => {
+        const nome = card.getAttribute('data-nome');
+        if (!termo || nome.includes(termo)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', filtrar);
+    }
+
+    // AJAX toggle para remover imediatamente
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    document.querySelectorAll('.toggle-favorito-form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const csrfToken = getCookie('csrftoken');
+        const btn = form.querySelector('button');
+        btn.disabled = true;
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken || '' }
+          });
+          const data = await res.json();
+          if (data.status === 'ok') {
+            if (data.is_favorited === false) {
+              const card = form.closest('.favorito-card');
+              card?.classList.add('opacity-50');
+              setTimeout(() => card?.remove(), 200);
+              showToast('Removido dos favoritos','warning');
+            } else {
+              showToast('Adicionado aos favoritos','success');
+            }
+          }
+        } catch (err) {
+          console.error('Erro ao remover favorito:', err);
+          showToast('Erro ao alternar favorito','error');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

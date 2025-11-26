@@ -4,7 +4,12 @@
 {% block conteudo %}
 <main class="flex flex-1 justify-center py-10">
     <div class="w-full max-w-4xl px-4">
-        <h1 class="mb-8 text-4xl font-bold text-neutral-800 dark:text-white">Carrinho de Compras</h1>
+        <h1 class="mb-4 text-4xl font-bold text-neutral-800 dark:text-white">Carrinho de Compras</h1>
+        {% if total_itens_carrinho %}
+        <div id="carrinho-alert" class="mb-6 rounded-lg bg-primary/15 border border-primary/30 px-4 py-3 text-sm font-semibold text-primary">
+            {{ total_itens_carrinho }} item{% if total_itens_carrinho != 1 %}s{% endif %} no carrinho
+        </div>
+        {% endif %}
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <div class="space-y-4 lg:col-span-2">
                 {% if carrinho and carrinho.itens.all %}
@@ -78,3 +83,69 @@
     </div>
 </main>
 {% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    function getCookie(name){const v=`; ${document.cookie}`;const p=v.split(`; ${name}=`);if(p.length===2)return p.pop().split(';').shift();}
+    const csrf = getCookie('csrftoken');
+    // Intercepta formulários de + e -
+    document.querySelectorAll('form[action*="subtrair_item_carrinho"], form[action*="adicionar_item_carrinho"]').forEach(f=>{
+        f.addEventListener('submit', async e => {
+            e.preventDefault();
+            try {
+                const res = await fetch(f.action, {method:'POST', headers:{'X-CSRFToken':csrf,'X-Requested-With':'XMLHttpRequest'}});
+                const data = await res.json();
+                if(data.message) showToast(data.message,'info');
+                if(data.total_itens!==undefined){atualizaBadge(data.total_itens);}            
+                setTimeout(()=>location.reload(),400);
+            } catch(err){console.error(err);showToast('Erro ao atualizar item','error');}
+        });
+    });
+    // Remover item link
+    document.querySelectorAll('a[href*="remover_do_carrinho"]').forEach(a=>{
+        a.addEventListener('click', async e => {
+            e.preventDefault();
+            try {
+                const res = await fetch(a.href, {method:'GET'}); // fallback se view exigir GET -> vamos trocar para POST AJAX
+                // Se a view não der JSON, faz redirect
+                if(res.headers.get('content-type')?.includes('application/json')){
+                    const data = await res.json();
+                    if(data.message) showToast(data.message,'warning');
+                    if(data.total_itens!==undefined) atualizaBadge(data.total_itens);
+                    setTimeout(()=>location.reload(),400);
+                } else {
+                    location.href = a.href;
+                }
+            } catch(err){console.error(err);showToast('Erro ao remover item','error');}
+        });
+    });
+    // Finalizar pedido
+    const finalizar = document.querySelector('a[href*="finalizar_pedido"]');
+    if(finalizar){
+        finalizar.addEventListener('click', async e => {
+            e.preventDefault();
+            try {
+                const res = await fetch(finalizar.href, {method:'GET', headers:{'X-Requested-With':'XMLHttpRequest'}});
+                if(res.headers.get('content-type')?.includes('application/json')){
+                    const data = await res.json();
+                    if(data.message) showToast(data.message,'success');
+                    setTimeout(()=>location.href='{% url "pedido:historico_pedidos" %}',800);
+                } else {
+                    location.href = finalizar.href;
+                }
+            } catch(err){console.error(err);showToast('Erro ao finalizar','error');}
+        });
+    }
+    function atualizaBadge(total){
+        let badge=document.getElementById('cart-badge');
+        const cartAnchor=document.querySelector('a[aria-label="Carrinho"]');
+        if(!badge){
+            if(!cartAnchor) return;
+            badge=document.createElement('span');
+            badge.id='cart-badge';
+            badge.className='absolute -top-1 -right-1 text-[10px] bg-primary text-black rounded-full px-1 min-w-[20px] text-center font-bold';
+            cartAnchor.appendChild(badge);
+        }
+        badge.textContent=total;
+    }
+});
+</script>

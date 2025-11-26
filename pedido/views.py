@@ -1,6 +1,7 @@
 # mercado/pedido/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Pedido, ItemPedido
 from produto.models import Produto
 from django.db.models import Sum, F
@@ -40,9 +41,9 @@ def adicionar_ao_carrinho(request, produto_id):
     # Se a requisição for AJAX (feita pelo nosso script)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         total_itens = pedido.itens.aggregate(total=Sum('quantidade'))['total'] or 0
-        return JsonResponse({'status': 'ok', 'total_itens': total_itens})
+        return JsonResponse({'status': 'ok', 'total_itens': total_itens, 'message': f'{quantidade}x {produto.nome} adicionado ao carrinho.'})
 
-    # Fallback para requisições normais (sem JavaScript)
+    messages.success(request, f'{quantidade}x {produto.nome} adicionado ao carrinho.')
     return redirect('pedido:ver_carrinho')
 
 
@@ -53,9 +54,15 @@ def subtrair_item_carrinho(request, item_id):
     if item.quantidade > 1:
         item.quantidade -= 1
         item.save()
+        messages.info(request, f'Quantidade de {item.produto.nome} diminuída para {item.quantidade}.')
     else:
         # Se a quantidade for 1, remove o item
+        messages.warning(request, f'{item.produto.nome} removido do carrinho.')
         item.delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        pedido = Pedido.objects.filter(usuario=request.user, status='carrinho').first()
+        total_itens = pedido.itens.aggregate(total=Sum('quantidade'))['total'] if pedido else 0
+        return JsonResponse({'status': 'ok', 'total_itens': total_itens, 'message': messages.get_messages(request)._queued_messages[-1].message if messages.get_messages(request) else ''})
     return redirect('pedido:ver_carrinho')
 
 
@@ -65,6 +72,11 @@ def adicionar_item_carrinho(request, item_id):
     item = get_object_or_404(ItemPedido, id=item_id, pedido__usuario=request.user)
     item.quantidade += 1
     item.save()
+    messages.success(request, f'Quantidade de {item.produto.nome} aumentada para {item.quantidade}.')
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        pedido = Pedido.objects.filter(usuario=request.user, status='carrinho').first()
+        total_itens = pedido.itens.aggregate(total=Sum('quantidade'))['total'] if pedido else 0
+        return JsonResponse({'status': 'ok', 'total_itens': total_itens, 'message': messages.get_messages(request)._queued_messages[-1].message if messages.get_messages(request) else ''})
     return redirect('pedido:ver_carrinho')
 
 
@@ -88,7 +100,12 @@ def ver_carrinho(request):
 @login_required
 def remover_do_carrinho(request, item_id):
     item = get_object_or_404(ItemPedido, id=item_id, pedido__usuario=request.user)
+    messages.warning(request, f'{item.produto.nome} removido do carrinho.')
     item.delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        pedido = Pedido.objects.filter(usuario=request.user, status='carrinho').first()
+        total_itens = pedido.itens.aggregate(total=Sum('quantidade'))['total'] if pedido else 0
+        return JsonResponse({'status': 'ok', 'total_itens': total_itens, 'message': messages.get_messages(request)._queued_messages[-1].message if messages.get_messages(request) else ''})
     return redirect('pedido:ver_carrinho')
 
 @login_required
@@ -98,7 +115,9 @@ def finalizar_pedido(request):
         # Muda o status, "fechando" o carrinho e transformando-o em um pedido.
         carrinho.status = 'realizado'
         carrinho.save()
-        # Opcional: Redirecione para uma página de sucesso ou histórico de pedidos.
+        messages.success(request, 'Pedido efetuado com sucesso!')
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok', 'message': 'Pedido efetuado com sucesso!'})
         return redirect('pedido:historico_pedidos')
     # Se não houver carrinho, redireciona para a página de produtos.
     return redirect('produtos:listar-produtos')

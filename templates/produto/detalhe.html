@@ -41,13 +41,17 @@
                         class="flex-1 flex items-center justify-center rounded-lg px-8 py-3 bg-primary text-black text-base font-bold hover:bg-primary/90 transition-all">
                         <span>Adicionar ao Carrinho</span>
                     </button>
-                    <a href="{% url 'favoritos:toggle-favorito' produto.id %}"
-                        class="toggle-favorito-btn p-3 rounded-full bg-white/50 backdrop-blur-sm hover:bg-white border">
-                        <span class="material-symbols-outlined text-2xl {% if produto.id in favoritos_ids %}text-red-500{% else %}text-gray-700{% endif %}"
+                </form>
+
+                <!-- Form de favoritos FORA do form de carrinho para evitar submit incorreto -->
+                <form action="{% url 'favoritos:toggle-favorito' produto.id %}" method="post" class="inline toggle-favorito-form mt-2">
+                    {% csrf_token %}
+                    <button type="submit" class="toggle-favorito-btn p-3 rounded-full bg-white/50 backdrop-blur-sm hover:bg-white border" aria-label="Favoritar">
+                        <span class="material-symbols-outlined text-2xl fav-icon {% if produto.id in favoritos_ids %}text-red-500{% else %}text-gray-700{% endif %}"
                               {% if produto.id in favoritos_ids %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
                             favorite
                         </span>
-                    </a>
+                    </button>
                 </form>
             </div>
         </div>
@@ -77,13 +81,15 @@
                                 <span class="material-symbols-outlined text-gray-700 text-xl">add_shopping_cart</span>
                             </button>
                         </form>
-                        <a href="{% url 'favoritos:toggle-favorito' p_rel.id %}"
-                            class="toggle-favorito-btn absolute top-2 right-2 p-1.5 rounded-full bg-white/50 backdrop-blur-sm hover:bg-white">
-                            <span class="material-symbols-outlined text-xl {% if p_rel.id in favoritos_ids %}text-red-500{% else %}text-gray-700{% endif %}"
-                                  {% if p_rel.id in favoritos_ids %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
-                                favorite
-                            </span>
-                        </a>
+                        <form action="{% url 'favoritos:toggle-favorito' p_rel.id %}" method="post" class="inline toggle-favorito-form absolute top-2 right-2">
+                            {% csrf_token %}
+                            <button type="submit" class="toggle-favorito-btn p-1.5 rounded-full bg-white/50 backdrop-blur-sm hover:bg-white">
+                                <span class="material-symbols-outlined text-xl fav-icon {% if p_rel.id in favoritos_ids %}text-red-500{% else %}text-gray-700{% endif %}"
+                                      {% if p_rel.id in favoritos_ids %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                                    favorite
+                                </span>
+                            </button>
+                        </form>
                     </div>
                     <div>
                         <p class="text-base font-semibold text-gray-800">{{ p_rel.nome }}</p>
@@ -96,4 +102,90 @@
         {% endif %}
     </div>
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        async function toggleFavoritoAjax(url, form) {
+            const csrfToken = getCookie('csrftoken');
+            const btn = form.querySelector('.toggle-favorito-btn');
+            const icon = form.querySelector('.fav-icon');
+            
+            // Desabilita o botão durante a requisição
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'X-CSRFToken': csrfToken || '',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await res.json();
+                console.log('Resposta do servidor:', data);
+                
+                if (data.status === 'ok') {
+                    if (data.is_favorited) {
+                        icon.classList.remove('text-gray-700');
+                        icon.classList.add('text-red-500');
+                        icon.style.fontVariationSettings = "'FILL' 1";
+                        showToast('Adicionado aos favoritos','success');
+                    } else {
+                        icon.classList.remove('text-red-500');
+                        icon.classList.add('text-gray-700');
+                        icon.style.fontVariationSettings = "'FILL' 0";
+                        showToast('Removido dos favoritos','warning');
+                    }
+                }
+            } catch (err) {
+                console.error('Erro ao alternar favorito:', err);
+                showToast('Erro ao alternar favorito','error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        const forms = document.querySelectorAll('.toggle-favorito-form');
+        console.log('Formulários de favoritos encontrados:', forms.length);
+        
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                toggleFavoritoAjax(form.action, form);
+            });
+        });
+
+        // Add-to-cart AJAX
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                const csrfToken = getCookie('csrftoken');
+                const fd = new FormData(form);
+                try {
+                    const res = await fetch(form.action, {method:'POST', headers:{'X-CSRFToken':csrfToken,'X-Requested-With':'XMLHttpRequest'}, body:fd});
+                    const data = await res.json();
+                    if(data.status==='ok'){showToast(data.message||'Item adicionado','success'); if(data.total_itens!==undefined){atualizaBadge(data.total_itens);} }
+                } catch(err){console.error(err);showToast('Erro ao adicionar','error');}
+            });
+        });
+        function atualizaBadge(total){
+            let badge=document.getElementById('cart-badge');
+            const cartAnchor=document.querySelector('a[aria-label="Carrinho"]');
+            if(!badge){
+                if(!cartAnchor) return;
+                badge=document.createElement('span');
+                badge.id='cart-badge';
+                badge.className='absolute -top-1 -right-1 text-[10px] bg-primary text-black rounded-full px-1 min-w-[20px] text-center font-bold';
+                cartAnchor.appendChild(badge);
+            }
+            badge.textContent=total;
+        }
+    });
+</script>
 {% endblock %}

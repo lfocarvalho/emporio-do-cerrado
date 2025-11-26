@@ -43,10 +43,11 @@ def listar_favoritos(request):
 
     context = {
         'lista_produtos': produtos_favoritos,
-        'favoritos_ids': favoritos_ids
+        'favoritos_ids': favoritos_ids,
+        'is_favoritos': True
     }
-    # Reutiliza o template de listagem de produtos
-    return render(request, 'produto/listar.html', context)
+    # Usa template dedicado de favoritos
+    return render(request, 'favoritos/listar.html', context)
 
 
 class APIListarFavoritos(APIView):
