@@ -145,8 +145,8 @@ export class CarrinhoPage implements OnInit, OnDestroy {
         position: 'bottom'
       });
       await toast.present();
-      // Redireciona para a página de produtos
-      this.router.navigate(['/tabs/produtos']);
+      // Redireciona para a página de perfil para usuário ver o pedido
+      this.router.navigate(['/tabs/perfil']);
     } catch (error) {
       console.error('Erro ao finalizar pedido:', error);
       const toast = await this.toastController.create({

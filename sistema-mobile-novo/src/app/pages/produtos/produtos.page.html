@@ -11,7 +11,11 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="search-container">
+  <div class="filters">
+    <ion-select interface="action-sheet" placeholder="Categoria" [value]="selectedCategoria" (ionChange)="onCategoriaChange($event)">
+      <ion-select-option value="todas">Todas</ion-select-option>
+      <ion-select-option *ngFor="let c of categorias" [value]="c.nome">{{ c.nome }}</ion-select-option>
+    </ion-select>
     <ion-searchbar
       [(ngModel)]="searchTerm"
       (ionInput)="onSearch()"

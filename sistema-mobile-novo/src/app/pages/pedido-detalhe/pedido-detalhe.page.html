@@ -1,0 +1,46 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/perfil"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Pedido</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading && pedido; else vazio">
+    <div class="ion-padding">
+      <h2 class="section-title">Pedido #{{ pedido.id }}</h2>
+      <p class="meta">Status: {{ pedido.status | titlecase }}</p>
+      <p class="meta">Data: {{ pedido.data_criacao | date:'dd/MM/yy HH:mm' }}</p>
+    </div>
+
+    <ion-list>
+      <ion-item *ngFor="let it of pedido?.itens">
+        <ion-thumbnail slot="start">
+          <img [src]="it.produto.imagem || 'assets/icon/favicon.png'" [alt]="it.produto.nome" />
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{ it.produto.nome }}</h2>
+          <p>Preço: {{ it.preco | currency:'BRL' }}</p>
+          <p>Quantidade: {{ it.quantidade }}</p>
+        </ion-label>
+        <ion-note slot="end">{{ it.total | currency:'BRL' }}</ion-note>
+      </ion-item>
+    </ion-list>
+
+    <div class="ion-padding subtotal">
+      <h2>Total: <strong>{{ pedido.subtotal | currency:'BRL' }}</strong></h2>
+    </div>
+  </ng-container>
+
+  <ng-template #vazio>
+    <ion-text color="medium">
+      <p class="ion-text-center ion-padding empty-state">Pedido não encontrado</p>
+    </ion-text>
+  </ng-template>
+</ion-content>

@@ -39,6 +39,30 @@ export class ApiService {
   }
 
   /**
+   * Converte um caminho relativo (ex: "/media/...") em URL absoluta usando o apiBaseUrl
+   * Mantém URLs absolutas inalteradas.
+   */
+  public toAbsoluteUrl(path: string): string {
+    return this.resolveUrl(path);
+  }
+
+  /**
+   * Converte um caminho relativo de mídia usando preferencialmente mediaBaseUrl,
+   * caindo para apiBaseUrl quando necessário.
+   */
+  public toAbsoluteMediaUrl(path: string): string {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    const base = (environment as any).mediaBaseUrl || environment.apiBaseUrl || '';
+    if (!base) return path; // sem base definida, retorna como veio
+    if (base.endsWith('/') && path.startsWith('/')) {
+      return base + path.substring(1);
+    }
+    return base + path;
+  }
+
+  /**
    * Método genérico para fazer requisições HTTP
    */
   async request<T>(options: ApiRequestOptions): Promise<T> {

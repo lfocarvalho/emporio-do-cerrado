@@ -1,7 +1,10 @@
-.loading-container {
-  display: flex;
-  justify-content: center;
-  padding: 40px;
+ion-list { background: transparent; padding: 8px 12px; }
+
+ion-item {
+  margin-bottom: 10px;
+  border-radius: 12px;
+  --background: var(--ion-color-light);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
 }
 
 ion-thumbnail {
@@ -16,4 +19,14 @@ ion-thumbnail {
 
 ion-card {
   margin: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
+
+.qtd-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qtd { min-width: 24px; text-align: center; }

@@ -25,7 +25,7 @@
       <h2 class="preco">{{ produto.preco | currency:'BRL' }}</h2>
       <p class="descricao">{{ produto.descricao }}</p>
 
-      <ion-button expand="block" (click)="adicionarAoCarrinho()" [disabled]="adicionando">
+      <ion-button expand="block" color="primary" (click)="adicionarAoCarrinho()" [disabled]="adicionando">
         <ion-icon slot="start" name="cart"></ion-icon>
         <span *ngIf="!adicionando">Adicionar ao Carrinho</span>
         <ion-spinner *ngIf="adicionando" name="crescent"></ion-spinner>
@@ -34,6 +34,6 @@
   </div>
 
   <ion-text color="medium" *ngIf="!loading && !produto">
-    <p class="ion-text-center ion-padding">Produto não encontrado</p>
+    <p class="ion-text-center ion-padding empty-state">Produto não encontrado</p>
   </ion-text>
 </ion-content>

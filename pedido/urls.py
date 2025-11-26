@@ -2,7 +2,7 @@
 from django.urls import path
 from .views import (
     adicionar_ao_carrinho, ver_carrinho, remover_do_carrinho, finalizar_pedido, historico_pedidos ,adicionar_item_carrinho, subtrair_item_carrinho,
-    APIGetCarrinho, APIAdicionarAoCarrinho, APIRemoverDoCarrinho, APIAlterarItemCarrinho, APIFinalizarPedido, APIHistoricoPedidos
+    APIGetCarrinho, APIAdicionarAoCarrinho, APIRemoverDoCarrinho, APIAlterarItemCarrinho, APIFinalizarPedido, APIHistoricoPedidos, APIDetalhePedido
 )
 
 app_name = 'pedido'
@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/alterar/', APIAlterarItemCarrinho.as_view(), name='api-alterar'),
     path('api/finalizar/', APIFinalizarPedido.as_view(), name='api-finalizar'),
     path('api/historico/', APIHistoricoPedidos.as_view(), name='api-historico-pedidos'),
+    path('api/pedido/<int:pk>/', APIDetalhePedido.as_view(), name='api-detalhe-pedido'),
 ]

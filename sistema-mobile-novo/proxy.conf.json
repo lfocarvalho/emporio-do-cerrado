@@ -23,6 +23,18 @@
     "changeOrigin": true,
     "logLevel": "debug"
   },
+  "/core/": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/api/": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
   "/media/": {
     "target": "http://localhost:8000",
     "secure": false,

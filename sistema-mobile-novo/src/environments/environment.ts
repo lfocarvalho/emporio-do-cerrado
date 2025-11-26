@@ -8,7 +8,9 @@ export const environment: Environment = {
   production: false,
   // Para rodar no navegador, deixe vazio e use o proxy (proxy.conf.json)
   // Para rodar em dispositivo/emulador, substitua abaixo por exemplo: 'http://10.0.2.2:8000'
-  apiBaseUrl: ''
+  apiBaseUrl: '',
+  // Para imagens (não passam pelo proxy), definimos a base do servidor Django
+  mediaBaseUrl: 'http://localhost:8000'
 };
 
 /*

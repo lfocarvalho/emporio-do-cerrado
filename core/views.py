@@ -52,14 +52,19 @@ class APIListarCarrossel(APIView):
 
     def get(self, request):
         qs = Carrossel.objects.filter(ativo=True, imagem__isnull=False).exclude(imagem='').order_by('ordem')
-        data = [
-            {
+        data = []
+        for c in qs:
+            img_url = None
+            if c.imagem:
+                try:
+                    img_url = request.build_absolute_uri(c.imagem.url)
+                except Exception:
+                    img_url = c.imagem.url
+            data.append({
                 'id': c.id,
                 'titulo': c.titulo,
-                'imagem': c.imagem.url if c.imagem else None,
+                'imagem': img_url,
                 'link_destino': c.link_destino,
                 'ordem': c.ordem,
-            }
-            for c in qs
-        ]
+            })
         return Response(data)

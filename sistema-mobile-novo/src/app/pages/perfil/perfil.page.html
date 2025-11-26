@@ -52,11 +52,11 @@
       </ion-label>
     </ion-item>
 
-    <ion-item *ngFor="let p of pedidos">
+    <ion-item *ngFor="let p of pedidos" button (click)="openPedido(p.id)">
       <ion-label>
         <h3>Pedido #{{ p.id }}</h3>
         <p>Status: {{ p.status }}</p>
-        <p>Data: {{ p.data_criacao | date:'short' }}</p>
+        <p>Data: {{ p.data_criacao | date:'dd/MM/yy HH:mm' }}</p>
       </ion-label>
       <ion-note slot="end" color="success">
         {{ p.subtotal | currency:'BRL' }}
@@ -64,7 +64,7 @@
     </ion-item>
 
     <ion-item *ngIf="pedidos.length === 0">
-      <ion-label color="medium">Nenhum pedido encontrado</ion-label>
+      <ion-label class="empty-state">Nenhum pedido encontrado</ion-label>
     </ion-item>
   </ion-list>
 

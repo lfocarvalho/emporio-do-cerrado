@@ -2,6 +2,17 @@
   padding: 8px 16px;
 }
 
+.filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 12px 12px 0 12px;
+}
+
+@media (min-width: 420px) {
+  .filters { grid-template-columns: 160px 1fr; align-items: center; }
+}
+
 .loading-container {
   display: flex;
   justify-content: center;

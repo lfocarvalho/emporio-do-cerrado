@@ -37,6 +37,11 @@ export class PerfilPage implements OnInit {
     await this.loadPedidos();
   }
 
+  ionViewWillEnter() {
+    // Atualiza a lista sempre que a aba for focada/aberta
+    this.loadPedidos();
+  }
+
   async loadPedidos() {
     try {
       const res = await this.apiService.get<any[]>('/pedidos/api/historico/');
@@ -54,5 +59,9 @@ export class PerfilPage implements OnInit {
   async onLogout() {
     await this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  openPedido(id: number) {
+    this.router.navigate(['/pedido', id]);
   }
 }

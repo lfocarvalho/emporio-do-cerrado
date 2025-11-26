@@ -245,3 +245,35 @@ class APIHistoricoPedidos(APIView):
             for p in pedidos
         ]
         return Response(data)
+
+
+class APIDetalhePedido(APIView):
+    """Retorna detalhes de um pedido específico do usuário autenticado."""
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        pedido = get_object_or_404(Pedido, id=pk, usuario=request.user)
+        itens = [
+            {
+                'id': item.id,
+                'produto': {
+                    'id': item.produto.id,
+                    'nome': item.produto.nome,
+                    'preco': str(item.produto.preco),
+                    'imagem': item.produto.imagem.url if item.produto.imagem else None,
+                },
+                'quantidade': item.quantidade,
+                'preco': str(item.preco),
+                'total': str(item.preco * item.quantidade),
+            }
+            for item in pedido.itens.select_related('produto').all()
+        ]
+        subtotal = pedido.itens.aggregate(total=Sum(F('preco') * F('quantidade')))['total'] or 0
+        return Response({
+            'id': pedido.id,
+            'status': pedido.status,
+            'data_criacao': pedido.data_criacao.isoformat() if pedido.data_criacao else None,
+            'itens': itens,
+            'subtotal': str(subtotal),
+        })

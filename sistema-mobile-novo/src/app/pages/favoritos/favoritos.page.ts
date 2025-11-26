@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonRefresher, IonRefresherContent,
   IonItemSliding, IonItem, IonItemOptions, IonItemOption, IonThumbnail,
-  IonLabel, IonIcon, IonSpinner, IonText, IonButton
+  IonLabel, IonIcon, IonSpinner, IonText, IonButton, IonList
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { trash } from 'ionicons/icons';
@@ -31,7 +31,8 @@ interface ProdutoFavorito {
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, IonRefresher, IonRefresherContent,
     IonItemSliding, IonItem, IonItemOptions, IonItemOption, IonThumbnail,
-    IonLabel, IonIcon, IonSpinner, IonText, IonButton, CommonModule
+    IonLabel, IonIcon, IonSpinner, IonText, IonButton, CommonModule,
+    IonList
   ]
 })
 export class FavoritosPage implements OnInit {

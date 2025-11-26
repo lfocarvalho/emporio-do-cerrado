@@ -35,3 +35,54 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* --- Estilos globais do app (estética unificada) --- */
+
+/* Fundo e toolbar alinhados ao tema */
+ion-content { --background: var(--ion-background-color); }
+ion-toolbar { --background: var(--ion-color-dark); --color: #ffffff; }
+
+/* Cabeçalhos de seção com ação à direita */
+.section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+}
+
+/* Container de filtros (select + busca) */
+.filters {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+	padding: 12px 12px 0 12px;
+}
+
+@media (min-width: 420px) {
+	.filters { grid-template-columns: 160px 1fr; align-items: center; }
+}
+
+/* Estados de loading e vazio */
+.loading-container {
+	display: flex;
+	justify-content: center;
+	padding: 40px;
+}
+
+.empty-state {
+	color: var(--ion-color-medium);
+	text-align: center;
+}
+
+/* Descrição de produto com clamp */
+.produto-descricao {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 0.9rem;
+	color: var(--ion-color-medium);
+}

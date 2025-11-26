@@ -6,7 +6,7 @@ import {
   IonContent, IonHeader, IonTitle, IonToolbar, IonSearchbar,
   IonRefresher, IonRefresherContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardSubtitle, IonCardContent, IonGrid,
-  IonRow, IonCol, IonSpinner, IonText
+  IonRow, IonCol, IonSpinner, IonText, IonSelect, IonSelectOption
 } from '@ionic/angular/standalone';
 import { ApiService } from '../../core/api.service';
 
@@ -28,7 +28,7 @@ interface Produto {
     IonContent, IonHeader, IonTitle, IonToolbar, IonSearchbar,
     IonRefresher, IonRefresherContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardSubtitle, IonCardContent, IonGrid,
-    IonRow, IonCol, IonSpinner, IonText,
+    IonRow, IonCol, IonSpinner, IonText, IonSelect, IonSelectOption,
     CommonModule, FormsModule
   ]
 })
@@ -42,12 +42,16 @@ export class ProdutosPage implements OnInit {
   searchTerm = '';
   loading = false;
   categoriaNome?: string;
+  categorias: { id: number, nome: string }[] = [];
+  selectedCategoria: string = 'todas';
 
   async ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.categoriaNome = params['categoria'] || undefined;
+      this.selectedCategoria = this.categoriaNome || 'todas';
       this.loadProdutos();
     });
+    await this.loadCategorias();
   }
 
   async loadProdutos() {
@@ -65,6 +69,14 @@ export class ProdutosPage implements OnInit {
       console.error('Erro ao carregar produtos:', error);
     } finally {
       this.loading = false;
+    }
+  }
+
+  async loadCategorias() {
+    try {
+      this.categorias = await this.apiService.get<any>('/produtos/api/categorias/');
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
     }
   }
 
@@ -88,5 +100,18 @@ export class ProdutosPage implements OnInit {
 
   navigateToProduto(produtoId: number) {
     this.router.navigate(['/produto', produtoId]);
+  }
+
+  async onCategoriaChange(ev: CustomEvent) {
+    const valor = ev.detail?.value as string;
+    this.selectedCategoria = valor;
+    this.categoriaNome = valor === 'todas' ? undefined : valor;
+    // Atualiza a URL (para compartilhamento) e recarrega
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: this.categoriaNome ? { categoria: this.categoriaNome } : {},
+      queryParamsHandling: ''
+    });
+    await this.loadProdutos();
   }
 }

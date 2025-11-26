@@ -16,6 +16,7 @@
   </ion-refresher>
 
   <div *ngIf="!loading && favoritos.length > 0">
+    <ion-list>
     <ion-item-sliding *ngFor="let favorito of favoritos">
       <ion-item button (click)="navigateToProduto(favorito.id)">
         <ion-thumbnail slot="start">
@@ -25,7 +26,7 @@
           <h2>{{ favorito?.nome }}</h2>
           <p>{{ (favorito?.preco || 0) | currency:'BRL' }}</p>
         </ion-label>
-        <ion-button slot="end" fill="clear" color="danger" (click)="$event.stopPropagation(); removerFavorito(favorito.id)">
+        <ion-button slot="end" fill="clear" color="danger" class="remover-btn" (click)="$event.stopPropagation(); removerFavorito(favorito.id)">
           <ion-icon name="trash"></ion-icon>
         </ion-button>
       </ion-item>
@@ -35,6 +36,7 @@
         </ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
+    </ion-list>
   </div>
 
   <div *ngIf="loading" class="loading-container">
@@ -42,6 +44,6 @@
   </div>
 
   <ion-text color="medium" *ngIf="!loading && favoritos.length === 0">
-    <p class="ion-text-center ion-padding">Nenhum favorito adicionado</p>
+    <p class="ion-text-center ion-padding empty-state">Nenhum favorito adicionado</p>
   </ion-text>
 </ion-content>
