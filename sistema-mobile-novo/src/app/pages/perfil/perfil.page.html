@@ -20,6 +20,14 @@
   </div>
 
   <ion-list>
+    <ion-item>
+      <ion-icon name="person-outline" slot="start"></ion-icon>
+      <ion-label>
+        <h2>Nome de usuário</h2>
+        <p>{{ user?.username }}</p>
+      </ion-label>
+    </ion-item>
+
     <form [formGroup]="form" class="perfil-form">
       <ion-item>
         <ion-icon name="person-outline" slot="start"></ion-icon>

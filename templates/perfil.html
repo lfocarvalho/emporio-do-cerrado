@@ -27,117 +27,36 @@
                     href="{% url 'pedido:historico_pedidos' %}"> Pedidos </a>
             </div>
             <div class="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2">
-                                <div class="flex flex-col gap-6 md:col-span-2">
-                                        <h3 class="text-lg font-bold text-black dark:text-white">Editar Perfil</h3>
-                                        <form id="perfil-form" class="grid grid-cols-1 md:grid-cols-2 gap-6" autocomplete="off">
-                                                <label class="flex flex-col">
-                                                        <p class="pb-2 text-sm font-medium text-black dark:text-white">Nome de Usuário</p>
-                                                        <input name="username" id="f-username" value="{{ user.username }}" minlength="3"
-                                                                class="form-input rounded border border-primary/40 focus:border-primary bg-white dark:bg-black/10 p-3 text-sm"
-                                                                placeholder="usuario" />
-                                                </label>
-                                                <label class="flex flex-col">
-                                                        <p class="pb-2 text-sm font-medium text-black dark:text-white">Nome</p>
-                                                        <input name="first_name" id="f-first" value="{{ user.first_name }}"
-                                                                class="form-input rounded border border-primary/40 focus:border-primary bg-white dark:bg-black/10 p-3 text-sm"
-                                                                placeholder="Seu nome" />
-                                                </label>
-                                                <label class="flex flex-col">
-                                                        <p class="pb-2 text-sm font-medium text-black dark:text-white">Sobrenome</p>
-                                                        <input name="last_name" id="f-last" value="{{ user.last_name }}"
-                                                                class="form-input rounded border border-primary/40 focus:border-primary bg-white dark:bg-black/10 p-3 text-sm"
-                                                                placeholder="Seu sobrenome" />
-                                                </label>
-                                                <label class="flex flex-col">
-                                                        <p class="pb-2 text-sm font-medium text-black dark:text-white">Email</p>
-                                                        <input name="email" id="f-email" type="email" value="{{ user.email }}"
-                                                                class="form-input rounded border border-primary/40 focus:border-primary bg-white dark:bg-black/10 p-3 text-sm"
-                                                                placeholder="email@exemplo.com" />
-                                                </label>
-                                                <div class="md:col-span-2 flex flex-col gap-2">
-                                                        <p id="save-status" class="text-xs text-black/60 dark:text-white/60">Alterações são salvas automaticamente.</p>
-                                                </div>
-                                        </form>
-                                </div>
+                <div class="flex flex-col gap-6">
+                    <h3 class="text-lg font-bold text-black dark:text-white">Informações Pessoais</h3>
+                    <div class="space-y-4">
+                        <label class="flex flex-col">
+                            <p class="pb-2 text-sm font-medium text-black dark:text-white">Nome Completo</p>
+                            <input
+                                class="form-input rounded border border-primary/20 bg-white/50 dark:border-primary/30 dark:bg-black/20 p-3 text-sm"
+                                value="{{ user.get_full_name }}" disabled />
+                        </label>
+                        <label class="flex flex-col">
+                            <p class="pb-2 text-sm font-medium text-black dark:text-white">Email</p>
+                            <input
+                                class="form-input rounded border border-primary/20 bg-white/50 dark:border-primary/30 dark:bg-black/20 p-3 text-sm"
+                                value="{{ user.email }}" disabled />
+                        </label>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <h3 class="text-lg font-bold text-black dark:text-white">Informações da Conta</h3>
+                    <div class="space-y-4">
+                        <label class="flex flex-col">
+                            <p class="pb-2 text-sm font-medium text-black dark:text-white">Nome de Usuário</p>
+                            <input
+                                class="form-input rounded border border-primary/20 bg-white/50 dark:border-primary/30 dark:bg-black/20 p-3 text-sm"
+                                value="{{ user.username }}" disabled />
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </main>
-<script>
-// Debounce helper
-function debounce(fn, delay){let t;return function(...args){clearTimeout(t);t=setTimeout(()=>fn.apply(this,args),delay);};}
-
-function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-const form = document.getElementById('perfil-form');
-const statusEl = document.getElementById('save-status');
-let lastSnapshot = {
-    username: form.username.value,
-    first_name: form.first_name.value,
-    last_name: form.last_name.value,
-    email: form.email.value
-};
-let saving = false;
-
-async function autosave(){
-    if (saving) return;
-    const data = {
-        username: form.username.value.trim(),
-        first_name: form.first_name.value.trim(),
-        last_name: form.last_name.value.trim(),
-        email: form.email.value.trim()
-    };
-    // detect changes
-    const changed = Object.keys(data).some(k => data[k] !== (lastSnapshot[k]||''));
-    if (!changed) return;
-    // basic validation
-    if (data.username.length < 3){
-        statusEl.textContent = 'Nome de usuário mínimo 3 caracteres';
-        statusEl.className='text-xs text-red-600';
-        return;
-    }
-    saving = true;
-    statusEl.textContent = 'Salvando...';
-    statusEl.className='text-xs text-primary';
-    try {
-        const res = await fetch('/perfil/api/', {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken') || ''
-            },
-            body: JSON.stringify(data)
-        });
-        if (!res.ok){
-            const txt = await res.text();
-            throw new Error(txt || 'Erro ao salvar');
-        }
-        const json = await res.json();
-        lastSnapshot = {
-            username: json.username || '',
-            first_name: json.first_name || '',
-            last_name: json.last_name || '',
-            email: json.email || ''
-        };
-        statusEl.textContent = 'Salvo';
-        statusEl.className='text-xs text-green-600';
-        setTimeout(()=>{statusEl.textContent='Alterações são salvas automaticamente.';statusEl.className='text-xs text-black/60 dark:text-white/60';},2000);
-    } catch(e){
-        statusEl.textContent = (e.message||'Falha ao salvar').substring(0,120);
-        statusEl.className='text-xs text-red-600';
-        setTimeout(()=>{statusEl.textContent='Alterações são salvas automaticamente.';statusEl.className='text-xs text-black/60 dark:text-white/60';},4000);
-    } finally {
-        saving = false;
-    }
-}
-
-['username','first_name','last_name','email'].forEach(id => {
-    form[id].addEventListener('input', debounce(autosave, 800));
-    form[id].addEventListener('blur', autosave);
-});
-</script>
 {% endblock %}

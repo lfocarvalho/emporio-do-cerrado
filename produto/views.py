@@ -26,23 +26,11 @@ class HomeView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Flag para controlar exibição do carrossel
-        mostrar_carrossel = True
-        if self.request.GET.get('hide_carrossel') == '1':
-            mostrar_carrossel = False
-        if self.request.GET.get('mostrar_carrossel') == '0':
-            mostrar_carrossel = False
-
-        context['mostrar_carrossel'] = mostrar_carrossel
         context['categorias'] = Categoria.objects.all()[:6]
-
-        if mostrar_carrossel:
-            context['slides_carrossel'] = Carrossel.objects.filter(
-                ativo=True,
-                imagem__isnull=False
-            ).exclude(imagem='').order_by('ordem')
-        else:
-            context['slides_carrossel'] = []
+        context['slides_carrossel'] = Carrossel.objects.filter(
+            ativo=True, 
+            imagem__isnull=False
+        ).exclude(imagem='').order_by('ordem')
         
         if self.request.user.is_authenticated:
             favoritos = Favorito.objects.filter(usuario=self.request.user)

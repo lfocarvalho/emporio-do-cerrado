@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from .forms import CustomUserCreationForm
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.authentication import TokenAuthentication
 from .serializers import UserSerializer
 
 class Login(View):
@@ -90,7 +90,7 @@ class CadastroView(CreateView):
 
 class UserProfileAPI(APIView):
     """API para obter e atualizar dados do usuário autenticado."""
-    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):

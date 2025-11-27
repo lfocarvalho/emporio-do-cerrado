@@ -10,7 +10,6 @@
 <main class="flex flex-1 justify-center py-10 px-4 sm:px-6 lg:px-8">
     <div class="layout-content-container flex w-full max-w-7xl flex-col gap-12">
 
-        {% if mostrar_carrossel %}
         <div class="relative w-full rounded-2xl shadow-lg overflow-hidden">
             <div class="swiper-container h-80">
                 <div class="swiper-wrapper">
@@ -41,7 +40,6 @@
             <div class="swiper-button-next text-white after:text-2xl"></div>
             <div class="swiper-pagination"></div>
         </div>
-        {% endif %}
 
         <div class="flex flex-col gap-6">
             <h2 class="text-text-dark text-2xl font-bold leading-tight tracking-tight">Categorias</h2>
@@ -100,24 +98,21 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var container = document.querySelector('.swiper-container');
-        if (container) {
-            var swiper = new Swiper('.swiper-container', {
-                loop: true,
-                autoplay: {
-                    delay: 5000,
-                    disableOnInteraction: false,
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-            });
-        }
+        var swiper = new Swiper('.swiper-container', {
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
     });
 </script>
 {% endblock %}
