@@ -63,10 +63,15 @@ export class ProdutosPage implements OnInit {
       }
 
       const result = await this.apiService.get<any>('/produtos/api/', params);
-      this.produtosOriginal = result.results || result || [];
-      this.produtos = [...this.produtosOriginal];
+      // Normaliza diferentes formatos de resposta (com ou sem paginação)
+      const lista = (result && (result.results || result.items)) ? (result.results || result.items) : result;
+      this.produtosOriginal = Array.isArray(lista) ? lista : [];
+      // Reaplica a busca atual para manter consistência ao trocar categoria ou recarregar
+      this.onSearch();
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
+      this.produtosOriginal = [];
+      this.produtos = [];
     } finally {
       this.loading = false;
     }
@@ -81,16 +86,21 @@ export class ProdutosPage implements OnInit {
   }
 
   onSearch() {
-    if (!this.searchTerm.trim()) {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) {
       this.produtos = [...this.produtosOriginal];
       return;
     }
+    this.produtos = this.produtosOriginal.filter((produto: any) => {
+      const nome = (produto?.nome || '').toLowerCase();
+      const desc = (produto?.descricao || '').toLowerCase();
+      return nome.includes(term) || desc.includes(term);
+    });
+  }
 
-    const term = this.searchTerm.toLowerCase();
-    this.produtos = this.produtosOriginal.filter(produto =>
-      produto.nome.toLowerCase().includes(term) ||
-      produto.descricao.toLowerCase().includes(term)
-    );
+  resetSearch() {
+    this.searchTerm = '';
+    this.produtos = [...this.produtosOriginal];
   }
 
   async handleRefresh(event: any) {
@@ -113,5 +123,7 @@ export class ProdutosPage implements OnInit {
       queryParamsHandling: ''
     });
     await this.loadProdutos();
+    // Se há termo de busca digitado, mantém filtragem após recarregar
+    this.onSearch();
   }
 }
