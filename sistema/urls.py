@@ -19,7 +19,7 @@ from django.urls import path, include
 # 1. Importações necessárias para servir ficheiros de média
 from django.conf import settings
 from django.conf.urls.static import static
-from sistema.views import Login, Logout, LoginAPI, PerfilView, CadastroView
+from sistema.views import Login, Logout, LoginAPI, PerfilView, CadastroView, UserProfileAPI
 from produto.views import HomeView
 
 urlpatterns = [
@@ -34,7 +34,8 @@ urlpatterns = [
     path('pedidos/', include('pedido.urls')),
     path('favoritos/', include('favoritos.urls')),
     path('', include('core.urls')),
-    path('autenticacao-api/', LoginAPI.as_view())
+    path('autenticacao-api/', LoginAPI.as_view()),
+    path('perfil/api/', UserProfileAPI.as_view()),
 ]
 
 # 2. Adicione este bloco de código ao final do ficheiro

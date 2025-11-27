@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CapacitorHttp } from '@capacitor/core';
+import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
 
 export interface User {
@@ -40,9 +41,18 @@ export class AuthService {
     // Verifica se há token armazenado
     const token = await this.getToken();
     if (token) {
-      const user = await this.getUser();
-      this.authState$.next(true);
-      this.currentUser$.next(user);
+      // Tenta obter perfil atualizado do servidor
+      try {
+        const fresh = await this.fetchRemoteProfile();
+        await this.storage?.set(this.USER_KEY, fresh);
+        this.authState$.next(true);
+        this.currentUser$.next(fresh);
+      } catch {
+        // Fallback para dados locais
+        const user = await this.getUser();
+        this.authState$.next(true);
+        this.currentUser$.next(user);
+      }
     }
   }
 
@@ -62,7 +72,18 @@ export class AuthService {
       });
 
       if (response.status === 200 && response.data.token) {
-        const loginData: LoginResponse = response.data;
+        // Normaliza formato (algumas versões antigas poderiam não mandar 'user')
+        let user: User | undefined = response.data.user;
+        if (!user) {
+          user = {
+            id: response.data.id,
+            username: response.data.username || username,
+            email: response.data.email,
+            first_name: response.data.first_name || response.data.nome,
+            last_name: response.data.last_name || ''
+          };
+        }
+        const loginData: LoginResponse = { token: response.data.token, user };
         
         // Armazena token e dados do usuário
         await this.storage?.set(this.TOKEN_KEY, loginData.token);
@@ -71,6 +92,11 @@ export class AuthService {
         // Atualiza estado
         this.authState$.next(true);
         this.currentUser$.next(loginData.user);
+        // Opcional: refetch para garantir consistência imediata
+        try {
+          const fresh = await this.fetchRemoteProfile();
+          await this.setUserData(fresh);
+        } catch {}
         
         return loginData;
       } else {
@@ -126,5 +152,20 @@ export class AuthService {
    */
   get currentUser(): Observable<User | null> {
     return this.currentUser$.asObservable();
+  }
+
+  /**
+   * Atualiza os dados do usuário armazenado após edição
+   */
+  async setUserData(updated: User): Promise<void> {
+    await this.storage?.set(this.USER_KEY, updated);
+    this.currentUser$.next(updated);
+  }
+
+  /** Obtém perfil remoto atual usando ApiService */
+  private async fetchRemoteProfile(): Promise<User> {
+    const api = inject(ApiService);
+    const data = await api.get<User>('/perfil/api/');
+    return data;
   }
 }

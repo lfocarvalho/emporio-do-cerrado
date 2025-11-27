@@ -10,6 +10,10 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .forms import CustomUserCreationForm
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from .serializers import UserSerializer
 
 class Login(View):
     """
@@ -56,12 +60,16 @@ class LoginAPI(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
+        # Formato padronizado esperado pelo app mobile: token + objeto user completo
         return Response({
-            'id' :user.id,
-            'nome' : user.first_name,
-            'email' : user.email,
-            'token' : token.key,
-          
+            'token': token.key,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
         })
     
 class PerfilView(LoginRequiredMixin, TemplateView):
@@ -78,3 +86,19 @@ class CadastroView(CreateView):
     template_name = "cadastro.html"
     # Redireciona para a página de login após o sucesso
     success_url = reverse_lazy('login')
+
+
+class UserProfileAPI(APIView):
+    """API para obter e atualizar dados do usuário autenticado."""
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

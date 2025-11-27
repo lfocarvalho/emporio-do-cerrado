@@ -46,7 +46,7 @@ export class HomePage implements OnInit {
   carrosselImagens: string[] = [];
   private carouselIndex = 0;
   private carouselTimer?: any;
-  logoUrl = '';
+  logoUrl: string = 'assets/img/logo.png';
 
   async ngOnInit() {
     // Define logo (usa servidor do Django para servir /static/...)
